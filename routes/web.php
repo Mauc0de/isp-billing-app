@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Customers\Index;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,3 +10,5 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard.index');
 });
+
+Route::get('/customers', Index::class)->name('customers.index');
