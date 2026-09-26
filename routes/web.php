@@ -1,9 +1,22 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Livewire\Customers\Index;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('welcome');
+
+/*
+|--------------------------------------------------------------------------
+| Public
+|--------------------------------------------------------------------------
+|
+| Halaman yang memang ditujukan untuk pengunjung yang belum masuk,
+| seperti portal pelanggan.
+|
+*/
+
+Route::get('/portal', fn () => view('portal.index'))->name('portal');
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +39,7 @@ Route::middleware('guest')->group(function (): void {
 | Authenticated
 |--------------------------------------------------------------------------
 |
-| Middlewaver `tenant` menurunkan TenantContext dari user yang sedang login
+| Middleware `tenant` menurunkan TenantContext dari user yang sedang login
 | dan menolak user atau tenant nonaktif. Route bertanda `permission`
 | memakai Gate yang dievaluasi di dalam konteks tenant tersebut.
 |
@@ -36,6 +49,10 @@ Route::middleware(['auth', 'tenant'])->group(function (): void {
     Route::get('/dashboard', fn () => view('dashboard.index'))
         ->middleware('permission:dashboard.view')
         ->name('dashboard');
+
+    Route::get('/customers', Index::class)
+        ->middleware('permission:customers.view')
+        ->name('customers.index');
 
     Route::get('/pelanggan', fn () => view('pelanggan.index'))
         ->middleware('permission:customers.view')

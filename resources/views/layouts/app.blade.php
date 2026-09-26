@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SATAK Keuangan - @yield('title')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="bg-gray-100">
     <div class="flex min-h-screen">
@@ -32,5 +33,6 @@
             @yield('content')
         </main>
     </div>
+    @livewireScripts
 </body>
 </html>
