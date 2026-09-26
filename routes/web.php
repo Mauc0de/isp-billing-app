@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/portal', function () {
+    return view('portal.index');
+})->name('portal');
 
 Route::get('/login', function () {
     if (session('user_id')) return redirect('/dashboard');
