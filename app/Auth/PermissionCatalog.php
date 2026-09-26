@@ -7,41 +7,61 @@ final class PermissionCatalog
     public const DASHBOARD_VIEW = 'dashboard.view';
 
     public const CUSTOMERS_VIEW = 'customers.view';
+
     public const CUSTOMERS_CREATE = 'customers.create';
+
     public const CUSTOMERS_UPDATE = 'customers.update';
+
     public const CUSTOMERS_ARCHIVE = 'customers.archive';
+
     public const CUSTOMERS_SUSPEND = 'customers.suspend';
+
     public const CUSTOMERS_REACTIVATE = 'customers.reactivate';
 
     public const PACKAGES_VIEW = 'packages.view';
+
     public const PACKAGES_CREATE = 'packages.create';
+
     public const PACKAGES_UPDATE = 'packages.update';
+
     public const PACKAGES_ARCHIVE = 'packages.archive';
 
     public const INVOICES_VIEW = 'invoices.view';
+
     public const INVOICES_CREATE = 'invoices.create';
+
     public const INVOICES_UPDATE = 'invoices.update';
+
     public const INVOICES_CANCEL = 'invoices.cancel';
 
     public const PAYMENTS_VIEW = 'payments.view';
+
     public const PAYMENTS_CREATE = 'payments.create';
+
     public const PAYMENTS_REVERSE = 'payments.reverse';
 
     public const REPORTS_VIEW = 'reports.view';
+
     public const REPORTS_EXPORT = 'reports.export';
 
     public const ROUTERS_VIEW = 'routers.view';
+
     public const ROUTERS_MANAGE = 'routers.manage';
 
     public const USERS_VIEW = 'users.view';
+
     public const USERS_CREATE = 'users.create';
+
     public const USERS_UPDATE = 'users.update';
+
     public const USERS_DELETE = 'users.delete';
 
     public const ROLES_VIEW = 'roles.view';
+
     public const ROLES_MANAGE = 'roles.manage';
 
     public const SETTINGS_VIEW = 'settings.view';
+
     public const SETTINGS_UPDATE = 'settings.update';
 
     public const AUDIT_VIEW = 'audit.view';

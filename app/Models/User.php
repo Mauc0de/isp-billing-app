@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Tenancy\TenantContext;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,7 +49,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')
             ->withPivot('tenant_id')
-            ->wherePivot('tenant_id', app(\App\Tenancy\TenantContext::class)->id());
+            ->wherePivot('tenant_id', app(TenantContext::class)->id());
     }
 
     public function assignRole(Role $role): void
