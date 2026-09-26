@@ -32,6 +32,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
 
+            $table->unique(['id', 'tenant_id'], 'users_id_tenant_unique');
             $table->index(['tenant_id', 'is_active']);
         });
 
