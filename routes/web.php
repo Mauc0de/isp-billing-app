@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/portal', function () {
+    return view('portal.index');
+})->name('portal');
 
 Route::get('/dashboard', function () {
     return view('dashboard.index');
