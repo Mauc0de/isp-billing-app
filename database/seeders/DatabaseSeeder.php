@@ -7,6 +7,7 @@ use App\Models\Pelanggan;
 use App\Models\Tagihan;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Tenancy\TenantContext;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -15,9 +16,6 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         // Buat Tenant utama
