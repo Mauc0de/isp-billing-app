@@ -15,13 +15,14 @@
                 <p class="text-blue-300 text-sm">Sistem Keuangan ISP</p>
             </div>
             <nav class="p-4 space-y-2">
-                <a href="/dashboard" class="block px-4 py-3 rounded-lg bg-blue-800">📊 Dashboard</a>
-                <a href="/pelanggan" class="block px-4 py-3 rounded-lg hover:bg-blue-800">👥 Pelanggan</a>
-                <a href="/pembayaran" class="block px-4 py-3 rounded-lg hover:bg-blue-800">💳 Pembayaran</a>
-                <a href="/tagihan" class="block px-4 py-3 rounded-lg hover:bg-blue-800">🧾 Tagihan</a>
-                <a href="/paket" class="block px-4 py-3 rounded-lg hover:bg-blue-800">📦 Paket Internet</a>
-                <a href="/laporan" class="block px-4 py-3 rounded-lg hover:bg-blue-800">📈 Laporan</a>
-                <a href="/pengaturan" class="block px-4 py-3 rounded-lg hover:bg-blue-800">⚙️ Pengaturan</a>
+                <a href="/dashboard" class="block px-4 py-3 rounded-lg {{ request()->is('dashboard*') ? 'bg-blue-800' : 'hover:bg-blue-800' }}">📊 Dashboard</a>
+                <a href="/pelanggan" class="block px-4 py-3 rounded-lg {{ request()->is('pelanggan*') ? 'bg-blue-800' : 'hover:bg-blue-800' }}">👥 Pelanggan</a>
+                <a href="/pembayaran" class="block px-4 py-3 rounded-lg {{ request()->is('pembayaran*') ? 'bg-blue-800' : 'hover:bg-blue-800' }}">💳 Pembayaran</a>
+                <a href="/tagihan" class="block px-4 py-3 rounded-lg {{ request()->is('tagihan*') ? 'bg-blue-800' : 'hover:bg-blue-800' }}">🧾 Tagihan</a>
+                <a href="/paket" class="block px-4 py-3 rounded-lg {{ request()->is('paket*') ? 'bg-blue-800' : 'hover:bg-blue-800' }}">📦 Paket Internet</a>
+                <a href="/laporan" class="block px-4 py-3 rounded-lg {{ request()->is('laporan*') ? 'bg-blue-800' : 'hover:bg-blue-800' }}">📈 Laporan</a>
+                <a href="/pengaturan" class="block px-4 py-3 rounded-lg {{ request()->is('pengaturan*') ? 'bg-blue-800' : 'hover:bg-blue-800' }}">⚙️ Pengaturan</a>
+                <a href="/logout" class="block px-4 py-3 rounded-lg text-red-300 hover:bg-red-900 hover:text-white transition-colors">🚪 Logout</a>
             </nav>
         </aside>
         <main class="ml-64 flex-1">

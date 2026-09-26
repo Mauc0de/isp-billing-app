@@ -16,7 +16,7 @@
                     <p class="text-xs text-gray-500">Sistem Keuangan ISP</p>
                 </div>
             </div>
-            <a href="/dashboard" class="bg-blue-900 text-white px-6 py-2.5 rounded-xl hover:bg-blue-800 transition font-medium text-sm">Masuk Dashboard →</a>
+            <a href="/login" class="bg-blue-900 text-white px-6 py-2.5 rounded-xl hover:bg-blue-800 transition font-medium text-sm">Masuk Dashboard →</a>
         </div>
     </nav>
 
