@@ -1,7 +1,3 @@
-@extends('layouts.app')
-
-@section('title', 'Dashboard')
-
 @section('content')
 <header class="bg-white shadow-sm py-4 md:py-5 px-4 md:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
     <div>
