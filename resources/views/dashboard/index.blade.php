@@ -3,27 +3,27 @@
 @section('title', 'Dashboard')
 
 @section('content')
+<!-- HEADER -->
+<header class="bg-white shadow-sm py-5 flex justify-between items-center w-full">
+    <div class="px-8">
+        <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
+        <p class="text-gray-500 text-sm">Ringkasan keuangan dan pelanggan ISP</p>
+    </div>
+    <div class="flex items-center gap-4 px-8">
+        <div class="text-right">
+            <p class="font-semibold text-gray-800">Admin</p>
+            <p class="text-sm text-gray-500">Administrator</p>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-blue-800 text-white flex items-center justify-center font-bold">A</div>
+    </div>
+</header>
 <div class="p-8">
-    <!-- NAVBAR -->
-    <header class="bg-white shadow-sm px-8 py-5 flex justify-between items-center">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
-            <p class="text-gray-500 text-sm">Ringkasan keuangan dan pelanggan ISP</p>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="text-right">
-                <p class="font-semibold text-gray-800">Admin</p>
-                <p class="text-sm text-gray-500">Administrator</p>
-            </div>
-            <div class="w-10 h-10 rounded-full bg-blue-900 text-white flex items-center justify-center font-bold">A</div>
-        </div>
-    </header>
     <!-- DASHBOARD CONTENT -->
     <div class="mt-8">
         <!-- WELCOME -->
-        <div class="bg-blue-900 rounded-2xl p-7 text-white mb-8">
-            <h2 class="text-2xl font-bold mb-2">Selamat Datang di SATAK 👋</h2>
-            <p class="text-blue-200">Kelola pelanggan, pembayaran, tagihan dan keuangan ISP melalui satu dashboard.</p>
+        <div class="bg-gradient-to-r from-blue-800 to-blue-700 rounded-2xl p-7 text-white mb-8 shadow-sm">
+            <h2 class="text-2xl font-bold mb-2">Selamat Datang di SATAK</h2>
+            <p class="text-blue-100">Kelola pelanggan, pembayaran, tagihan dan keuangan ISP melalui satu dashboard.</p>
         </div>
         <!-- STATISTIK -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
@@ -35,7 +35,6 @@
                         <h3 class="text-3xl font-bold text-gray-800 mt-2">125</h3>
                         <p class="text-green-600 text-sm mt-2">↑ 8% bulan ini</p>
                     </div>
-                    <div class="bg-blue-100 p-3 rounded-xl text-2xl">👥</div>
                 </div>
             </div>
             <!-- PENDAPATAN -->
@@ -46,7 +45,6 @@
                         <h3 class="text-2xl font-bold text-gray-800 mt-2">Rp 15.750.000</h3>
                         <p class="text-green-600 text-sm mt-2">↑ 12% dari bulan lalu</p>
                     </div>
-                    <div class="bg-green-100 p-3 rounded-xl text-2xl">💰</div>
                 </div>
             </div>
             <!-- TAGIHAN -->
@@ -57,7 +55,6 @@
                         <h3 class="text-3xl font-bold text-gray-800 mt-2">18</h3>
                         <p class="text-red-600 text-sm mt-2">Perlu ditindaklanjuti</p>
                     </div>
-                    <div class="bg-red-100 p-3 rounded-xl text-2xl">🧾</div>
                 </div>
             </div>
             <!-- JATUH TEMPO -->
@@ -68,7 +65,6 @@
                         <h3 class="text-3xl font-bold text-gray-800 mt-2">7</h3>
                         <p class="text-orange-600 text-sm mt-2">Perlu perhatian</p>
                     </div>
-                    <div class="bg-orange-100 p-3 rounded-xl text-2xl">⏰</div>
                 </div>
             </div>
         </div>
