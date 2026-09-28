@@ -1,4 +1,4 @@
-# Fondasi Backend Andi
+# Fondasi Backend
 
 ## Keputusan Arsitektur
 
@@ -65,5 +65,5 @@ Aturan:
 3. Login, logout, dan pembatasan user nonaktif.
 4. Nomor dokumen transaksional yang aman terhadap race condition.
 5. Generate invoice dan pencatatan pembayaran dalam database transaction.
-6. Event domain untuk integrasi Modul Automasi.
+6. Event domain untuk integrasi modul automasi (suspend, notifikasi).
 7. Factory, seeder, dan test skenario bisnis.
