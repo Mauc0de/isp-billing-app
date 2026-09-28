@@ -57,4 +57,24 @@ class Tenant extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function routers(): HasMany
+    {
+        return $this->hasMany(Router::class);
+    }
+
+    public function suspendLogs(): HasMany
+    {
+        return $this->hasMany(SuspendLog::class);
+    }
+
+    public function whatsappNotifications(): HasMany
+    {
+        return $this->hasMany(WhatsappNotification::class);
+    }
+
+    public function settings(): HasMany
+    {
+        return $this->hasMany(TenantSetting::class);
+    }
 }
