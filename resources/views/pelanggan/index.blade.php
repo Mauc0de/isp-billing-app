@@ -3,37 +3,46 @@
 @section('title', 'Pelanggan')
 
 @section('content')
-<div class="p-8">
-    <div class="bg-white rounded-2xl shadow-sm p-6">
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h3 class="font-bold text-lg">Daftar Pelanggan</h3>
-                <p class="text-gray-500 text-sm">Manajemen data pelanggan</p>
-            </div>
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Tambah Pelanggan</button>
-        </div>
+<header class="bg-white shadow-sm py-4 md:py-5 px-4 md:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+    <div>
+        <h2 class="text-xl md:text-2xl font-bold text-gray-800">Pelanggan</h2>
+        <p class="text-gray-500 text-xs md:text-sm">Kelola data pelanggan ISP</p>
+    </div>
+</header>
+<div class="p-4 md:p-8">
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full min-w-[700px] text-sm">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="p-4 text-left">ID</th>
-                        <th class="p-4 text-left">Nama</th>
-                        <th class="p-4 text-left">Telepon</th>
-                        <th class="p-4 text-left">Email</th>
-                        <th class="p-4 text-left">Aksi</th>
+                        <th class="text-left p-4 text-gray-500">Nama</th>
+                        <th class="text-left p-4 text-gray-500">Telepon</th>
+                        <th class="text-left p-4 text-gray-500">Email</th>
+                        <th class="text-left p-4 text-gray-500">Paket</th>
+                        <th class="text-left p-4 text-gray-500">Status</th>
+                        <th class="text-left p-4 text-gray-500">Tanggal Aktif</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse($pelanggan as $p)
                     <tr class="border-t">
-                        <td class="p-4">1</td>
-                        <td class="p-4 font-medium">Ahmad</td>
-                        <td class="p-4">0812345678</td>
-                        <td class="p-4">ahmad@example.com</td>
+                        <td class="p-4 font-medium">{{ $p->nama }}</td>
+                        <td class="p-4 text-gray-500">{{ $p->telepon }}</td>
+                        <td class="p-4 text-gray-500">{{ $p->email }}</td>
+                        <td class="p-4 text-gray-500">{{ $p->paket->nama_paket ?? '-' }}</td>
                         <td class="p-4">
-                            <button class="text-blue-600 mr-2">Edit</button>
-                            <button class="text-red-600">Hapus</button>
+                            <span class="px-3 py-1 rounded-full text-xs
+                                {{ $p->status === 'aktif' ? 'bg-green-100 text-green-700' : ($p->status === 'menunggak' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700') }}">
+                                {{ $p->status }}
+                            </span>
                         </td>
+                        <td class="p-4 text-gray-500">{{ $p->tanggal_aktif?->format('d/m/Y') ?? '-' }}</td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-gray-400">Belum ada pelanggan</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

@@ -15,7 +15,7 @@
                     <h1 class="text-2xl font-bold text-slate-900">SATAK ISP</h1>
                     <p class="text-sm text-slate-500 mt-1">Sistem Keuangan ISP - Admin</p>
                 </div>
-                <div class="bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to[#0052FF] p-1 rounded-xl mb-6">
+                <div class="bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] p-1 rounded-xl mb-6">
                     <div class="bg-white rounded-xl p-4 sm:p-5">
                         <h2 class="text-base sm:text-lg font-semibold text-slate-900">Masuk sebagai Admin</h2>
                         <p class="text-sm text-slate-600 mt-1">Masukkan kredensial admin</p>
@@ -50,7 +50,7 @@
                     <div class="flex justify-end mt-2">
                         <a href="#" class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">Lupa Password?</a>
                     </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from[#00D2B4] via[#0066FF] to[#0052FF] hover:from[#00B8A8] hover:via[#0059C7] hover:to[#0046B4] text-white text-sm font-semibold py-3.5 rounded-lg shadow-md transition-all duration-200">Masuk</button>
+                    <button type="submit" class="w-full bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] hover:from-[#00B8A8] hover:via-[#0059C7] hover:to-[#0046B4] text-white text-sm font-semibold py-3.5 rounded-lg shadow-md transition-all duration-200">Masuk</button>
                 </form>
                 <div class="mt-6 sm:mt-8 pt-6 border-t border-slate-100">
                     <p class="text-xs text-center text-slate-500">Belum punya akun? <a href="/register" class="font-semibold text-blue-600 hover:text-blue-800 hover:underline">Daftar</a></p>

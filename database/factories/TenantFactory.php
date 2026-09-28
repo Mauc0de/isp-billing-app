@@ -12,16 +12,12 @@ class TenantFactory extends Factory
 {
     public function definition(): array
     {
-        $name = fake()->unique()->company();
-
         return [
-            'name' => $name,
-            'slug' => fake()->unique()->slug(),
-            'email' => fake()->companyEmail(),
-            'phone' => fake()->numerify('08##########'),
-            'address' => fake()->address(),
-            'timezone' => 'Asia/Jakarta',
-            'is_active' => true,
+            'nama' => fake()->unique()->company(),
+            'kode' => fake()->unique()->bothify('????##'),
+            'alamat' => fake()->address(),
+            'telepon' => fake()->numerify('08##########'),
+            'aktif' => true,
         ];
     }
 }
