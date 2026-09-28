@@ -16,6 +16,7 @@ Route::post('/login', function (Request $request) {
     $request->validate(['email' => 'required|email', 'password' => 'required']);
     $request->session()->put('user_id', 1);
     $request->session()->put('user_email', $request->email);
+    $request->session()->put('user_role', $request->input('role', 'admin'));
     return redirect('/dashboard');
 });
 
@@ -33,7 +34,7 @@ Route::post('/register', function (Request $request) {
 });
 
 Route::get('/logout', function (Request $request) {
-    $request->session()->forget(['user_id','user_email','user_name']);
+    $request->session()->forget(['user_id','user_email','user_name','user_role']);
     $request->session()->invalidate();
     $request->session()->regenerateToken();
     return redirect('/login');
