@@ -19,14 +19,14 @@
                 </div>
 
                 <div class="flex p-1 bg-slate-100 rounded-full mb-6">
-                    <button type="button" id="tab-admin" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition bg-white shadow text-slate-900">Admin</button>
-                    <button type="button" id="tab-pelanggan" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition text-slate-500">Pelanggan</button>
+                    <button type="button" id="tab-pelanggan" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition bg-white shadow text-slate-900">Pelanggan</button>
+                    <button type="button" id="tab-admin" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition text-slate-500">Admin</button>
                 </div>
 
                 <div class="bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] p-[1.5px] rounded-xl mb-6">
                     <div class="bg-white rounded-[10px] px-4 py-3">
-                        <h2 id="head-title" class="text-sm font-bold text-slate-900">Masuk sebagai Admin</h2>
-                        <p id="head-desc" class="text-xs text-slate-500">Kelola pelanggan, tagihan & laporan</p>
+                        <h2 id="head-title" class="text-sm font-bold text-slate-900">Masuk sebagai Pelanggan</h2>
+                        <p id="head-desc" class="text-xs text-slate-500">Lihat tagihan & riwayat pembayaran</p>
                     </div>
                 </div>
 
@@ -36,14 +36,14 @@
 
                 <form method="POST" action="/login" class="space-y-4" id="login-form">
                     @csrf
-                    <input type="hidden" name="role" id="role-input" value="admin">
+                    <input type="hidden" name="role" id="role-input" value="pelanggan">
                     <div>
                         <label class="block text-[11px] font-bold tracking-wider text-slate-600 mb-2">EMAIL / USERNAME</label>
                         <div class="relative">
                             <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                                 <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="m3 7 9 6 9-6"/></svg>
                             </span>
-                            <input id="email-input" type="email" name="email" value="{{ old('email') }}" placeholder="admin@satak.net" required class="w-full pl-10 pr-4 py-3 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder-slate-400">
+                            <input id="email-input" type="email" name="email" value="{{ old('email') }}" placeholder="pelanggan@email.com" required class="w-full pl-10 pr-4 py-3 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder-slate-400">
                         </div>
                     </div>
                     <div>
