@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Tenancy;
 
-use App\Models\Customer;
+use App\Models\Pelanggan;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Tenancy\TenantContext;
@@ -39,17 +39,17 @@ class TenantIsolationTest extends TestCase
         $context = app(TenantContext::class);
 
         $context->run($tenantA->id, function (): void {
-            $this->createCustomer('CUSTOMER-A');
+            $this->createPelanggan('PELANGGAN-A');
         });
 
         $context->run($tenantB->id, function (): void {
-            $this->createCustomer('CUSTOMER-B');
+            $this->createPelanggan('PELANGGAN-B');
         });
 
-        $visibleCustomers = $context->run($tenantA->id, fn (): array => Customer::query()->get()->all());
+        $visibleCustomers = $context->run($tenantA->id, fn (): array => Pelanggan::query()->get()->all());
 
         $this->assertCount(1, $visibleCustomers);
-        $this->assertSame('CUSTOMER-A', $visibleCustomers[0]->customer_number);
+        $this->assertSame('PELANGGAN-A', $visibleCustomers[0]->nama);
     }
 
     public function test_tenant_queries_fail_closed_without_a_tenant_context(): void
@@ -57,10 +57,10 @@ class TenantIsolationTest extends TestCase
         $tenant = Tenant::factory()->create();
 
         app(TenantContext::class)->run($tenant->id, function (): void {
-            $this->createCustomer('CUSTOMER-A');
+            $this->createPelanggan('PELANGGAN-A');
         });
 
-        $this->assertSame(0, Customer::query()->count());
+        $this->assertSame(0, Pelanggan::query()->count());
     }
 
     public function test_tenant_models_cannot_be_created_with_a_mismatched_context(): void
@@ -72,10 +72,9 @@ class TenantIsolationTest extends TestCase
 
         app(TenantContext::class)->run(
             $tenantA->id,
-            fn () => Customer::query()->create([
+            fn () => Pelanggan::query()->create([
                 'tenant_id' => $tenantB->id,
-                'customer_number' => 'CUSTOMER-B',
-                'name' => 'Tenant B Customer',
+                'nama' => 'Tenant B Pelanggan',
             ]),
         );
     }
@@ -117,11 +116,10 @@ class TenantIsolationTest extends TestCase
             ->assertForbidden();
     }
 
-    private function createCustomer(string $customerNumber): Customer
+    private function createPelanggan(string $nama): Pelanggan
     {
-        return Customer::query()->create([
-            'customer_number' => $customerNumber,
-            'name' => 'Test Customer',
+        return Pelanggan::query()->create([
+            'nama' => $nama,
         ]);
     }
 }

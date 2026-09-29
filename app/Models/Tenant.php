@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,17 +10,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Tenant extends Model
 {
     use HasFactory;
+    use HasUlids;
 
     protected $fillable = [
-        'nama',
-        'kode',
-        'alamat',
-        'telepon',
-        'aktif',
+        'name',
+        'slug',
+        'email',
+        'phone',
+        'address',
+        'timezone',
+        'is_active',
     ];
 
     protected $casts = [
-        'aktif' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function users(): HasMany

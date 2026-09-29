@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Pembayaran extends Model
 {
-    use HasFactory;
+    use BelongsToTenant;
+    use HasFactory, HasUlids;
 
     protected $fillable = [
         'tenant_id',
@@ -35,10 +38,5 @@ class Pembayaran extends Model
     public function pelanggan(): BelongsTo
     {
         return $this->belongsTo(Pelanggan::class);
-    }
-
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class);
     }
 }

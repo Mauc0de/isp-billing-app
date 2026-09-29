@@ -43,15 +43,19 @@ class TenantRoleProvisioner
                         ],
                     );
 
-                    $slugs = $definition['permissions'] === '*'
-                        ? $permissions->keys()->all()
-                        : $definition['permissions'];
+                    // Catatan: Eloquent\Collection::only() menyaring berdasarkan
+                    // primary key model, bukan key collection. Karena $permissions
+                    // di-keyBy('slug'), memakai ->only($slugs) selalu menghasilkan
+                    // collection kosong. Filter per atribut slug saja.
+                    $selected = $definition['permissions'] === '*'
+                        ? $permissions
+                        : $permissions->whereIn('slug', $definition['permissions']);
 
-                    $permissionRecords = $permissions
-                        ->only($slugs)
-                        ->mapWithKeys(fn (Permission $permission): array => [
+                    $permissionRecords = $selected->mapWithKeys(
+                        fn (Permission $permission): array => [
                             $permission->getKey() => ['tenant_id' => $tenant->getKey()],
-                        ]);
+                        ],
+                    );
 
                     $role->permissions()->sync($permissionRecords->all());
 

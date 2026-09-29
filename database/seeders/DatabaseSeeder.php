@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Auth\TenantRoleProvisioner;
 use App\Models\Paket;
 use App\Models\Pelanggan;
 use App\Models\Tagihan;
@@ -10,7 +11,6 @@ use App\Models\User;
 use App\Tenancy\TenantContext;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,30 +18,60 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // Buat Tenant utama
-        $tenant = Tenant::create([
-            'nama' => 'NetISP Indonesia',
-            'kode' => 'NETISP',
-            'alamat' => 'Jl. Teknologi No. 88, Jakarta Selatan',
-            'telepon' => '021-77889900',
-            'aktif' => true,
-        ]);
+        // Katalog permission harus terdaftar lebih dulu; TenantRoleProvisioner
+        // melempar exception kalau permission belum ada di database.
+        $this->call(PermissionSeeder::class);
 
-        // User Admin
-        User::create([
-            'tenant_id' => $tenant->id,
-            'name' => 'Administrator',
-            'email' => 'admin@netisp.id',
-            'password' => Hash::make('admin123'),
-        ]);
+        // Buat Tenant utama (idempoten, aman dijalankan ulang)
+        $tenant = Tenant::updateOrCreate(
+            ['slug' => 'netisp'],
+            [
+                'name' => 'NetISP Indonesia',
+                'email' => 'admin@netisp.id',
+                'phone' => '021-77889900',
+                'address' => 'Jl. Teknologi No. 88, Jakarta Selatan',
+                'timezone' => 'Asia/Jakarta',
+                'is_active' => true,
+            ],
+        );
 
-        // User biasa
-        User::create([
-            'tenant_id' => $tenant->id,
-            'name' => 'Petugas Billing',
-            'email' => 'petugas@netisp.id',
-            'password' => Hash::make('petugas123'),
-        ]);
+        // Password di-hash oleh cast 'hashed' pada model User.
+        $adminUser = User::updateOrCreate(
+            ['email' => 'admin@netisp.id'],
+            [
+                'tenant_id' => $tenant->id,
+                'name' => 'Administrator',
+                'password' => 'admin123',
+                'is_active' => true,
+            ],
+        );
+
+        $staffUser = User::updateOrCreate(
+            ['email' => 'petugas@netisp.id'],
+            [
+                'tenant_id' => $tenant->id,
+                'name' => 'Petugas Billing',
+                'password' => 'petugas123',
+                'is_active' => true,
+            ],
+        );
+
+        // Siapkan role default tenant lalu diberikan ke user, tanpa ini
+        // middleware role/permission akan menolak semua permintaan.
+        // Harus di dalam TenantContext: relasi role_user memfilter pivot
+        // berdasarkan tenant aktif, jadi tanpa context dia tidak melihat
+        // baris yang sudah terpasang dan gagal UNIQUE saat dijalankan ulang.
+        app(TenantContext::class)->run($tenant->id, function () use ($tenant, $adminUser, $staffUser): void {
+            $roles = app(TenantRoleProvisioner::class)->provision($tenant);
+
+            $adminUser->assignRole($roles->firstWhere('slug', 'admin'));
+            $staffUser->assignRole($roles->firstWhere('slug', 'staff'));
+        });
+
+        // Data contoh hanya dibuat sekali agar db:seed bisa dijalankan ulang.
+        if (Pelanggan::withoutGlobalScopes()->where('tenant_id', $tenant->id)->exists()) {
+            return;
+        }
 
         // Paket Internet
         $paket1 = Paket::create([

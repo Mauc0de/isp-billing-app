@@ -4,10 +4,11 @@ use App\Models\Pelanggan;
 use App\Models\Paket;
 use App\Models\Tagihan;
 use App\Models\Pembayaran;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,29 +19,32 @@ Route::get('/portal', function () {
 })->name('portal');
 
 Route::get('/login', function () {
-    if (session('user_id')) return redirect('/dashboard');
+    if (Auth::check()) {
+        return redirect('/dashboard');
+    }
+
     return view('auth.login');
 })->name('login');
 
 Route::post('/login', function (Request $request) {
     $request->validate(['email' => 'required|email', 'password' => 'required']);
 
-    $user = User::where('email', $request->email)->first();
-
-    if (!$user || !Hash::check($request->password, $user->password)) {
-        return back()->withErrors(['email' => 'Email atau password salah.']);
+    // Pakai guard Laravel, bukan session manual, supaya $request->user()
+    // bekerja untuk middleware ResolveTenant/EnsureRole/EnsurePermission.
+    if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        return back()->withErrors(['email' => 'Email atau password salah.'])->onlyInput('email');
     }
 
-    $request->session()->put('user_id', $user->id);
-    $request->session()->put('user_email', $user->email);
-    $request->session()->put('user_name', $user->name);
-    $request->session()->put('tenant_id', $user->tenant_id);
+    $request->session()->regenerate();
 
     return redirect('/dashboard');
 });
 
 Route::get('/register', function () {
-    if (session('user_id')) return redirect('/dashboard');
+    if (Auth::check()) {
+        return redirect('/dashboard');
+    }
+
     return view('auth.register');
 })->name('register');
 
@@ -51,60 +55,68 @@ Route::post('/register', function (Request $request) {
         'password' => 'required|min:6',
     ]);
 
+    // tenant_id berisi ULID, bukan angka. Pada tahap pilot seluruh pengguna
+    // bergabung ke tenant aktif pertama.
+    $tenant = Tenant::where('is_active', true)->orderBy('created_at')->first();
+
+    if ($tenant === null) {
+        return back()->withErrors(['email' => 'Belum ada tenant aktif. Hubungi administrator.']);
+    }
+
+    // Password di-hash oleh cast 'hashed' pada model User.
     $user = User::create([
         'name' => $request->name,
         'email' => $request->email,
         'password' => $request->password,
-        'tenant_id' => 1,
+        'tenant_id' => $tenant->id,
+        'is_active' => true,
     ]);
 
-    $request->session()->put('user_id', $user->id);
-    $request->session()->put('user_email', $user->email);
-    $request->session()->put('user_name', $user->name);
-    $request->session()->put('tenant_id', $user->tenant_id);
+    // Login lewat guard, bukan hanya session manual, supaya middleware 'auth'
+    // dan 'tenant' mengenali user ini.
+    Auth::login($user);
+    $request->session()->regenerate();
 
     return redirect('/dashboard');
 });
 
 Route::get('/admin/login', function () {
-    if (session('user_id')) return redirect('/dashboard');
+    if (Auth::check()) {
+        return redirect('/dashboard');
+    }
+
     return view('auth.admin_login');
 })->name('admin.login');
 
 Route::post('/admin/login', function (Request $request) {
     $request->validate(['email' => 'required|email', 'password' => 'required']);
 
-    $user = User::where('email', $request->email)->first();
-
-    if (!$user || !Hash::check($request->password, $user->password)) {
-        return back()->withErrors(['email' => 'Email atau password salah.']);
+    if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        return back()->withErrors(['email' => 'Email atau password salah.'])->onlyInput('email');
     }
 
-    $request->session()->put('user_id', $user->id);
-    $request->session()->put('user_email', $user->email);
-    $request->session()->put('user_name', $user->name);
-    $request->session()->put('tenant_id', $user->tenant_id);
+    $request->session()->regenerate();
 
     return redirect('/dashboard');
 });
 
 Route::get('/logout', function (Request $request) {
-    $request->session()->forget(['user_id', 'user_email', 'user_name', 'tenant_id']);
+    Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
     return redirect('/login');
 })->name('logout');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'tenant'])->group(function () {
+    // Isolasi tenant ditangani global scope BelongsToTenant yang diaktifkan
+    // oleh middleware 'tenant'. Karena itu query di bawah tidak perlu lagi
+    // memfilter tenant_id secara manual.
 
     Route::get('/dashboard', function () {
-        $totalPelanggan = Pelanggan::where('tenant_id', session('tenant_id'))->count();
-        $totalPaket = Paket::where('tenant_id', session('tenant_id'))->count();
-        $tagihanBelumBayar = Tagihan::where('tenant_id', session('tenant_id'))
-            ->where('status', 'belum_bayar')->count();
-        $pembayaranBulanIni = Pembayaran::where('tenant_id', session('tenant_id'))
-            ->whereMonth('tanggal_bayar', now()->month)
-            ->sum('jumlah');
+        $totalPelanggan = Pelanggan::count();
+        $totalPaket = Paket::count();
+        $tagihanBelumBayar = Tagihan::where('status', 'belum_bayar')->count();
+        $pembayaranBulanIni = Pembayaran::whereMonth('tanggal_bayar', now()->month)->sum('jumlah');
 
         return view('dashboard.index', compact(
             'totalPelanggan',
@@ -115,40 +127,34 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     Route::get('/pelanggan', function () {
-        $pelanggan = Pelanggan::where('tenant_id', session('tenant_id'))
-            ->with('paket')
-            ->get();
+        $pelanggan = Pelanggan::with('paket')->get();
+
         return view('pelanggan.index', compact('pelanggan'));
     })->name('pelanggan.index');
 
     Route::get('/paket', function () {
-        $paket = Paket::where('tenant_id', session('tenant_id'))->get();
+        $paket = Paket::get();
+
         return view('paket.index', compact('paket'));
     })->name('paket.index');
 
     Route::get('/tagihan', function () {
-        $tagihan = Tagihan::where('tenant_id', session('tenant_id'))
-            ->with('pelanggan')
-            ->get();
+        $tagihan = Tagihan::with('pelanggan')->get();
+
         return view('tagihan.index', compact('tagihan'));
     })->name('tagihan.index');
 
     Route::get('/pembayaran', function () {
-        $pembayaran = Pembayaran::where('tenant_id', session('tenant_id'))
-            ->with(['pelanggan', 'tagihan'])
-            ->get();
+        $pembayaran = Pembayaran::with(['pelanggan', 'tagihan'])->get();
+
         return view('pembayaran.index', compact('pembayaran'));
     })->name('pembayaran.index');
 
     Route::get('/laporan', function () {
-        $totalPendapatan = Pembayaran::where('tenant_id', session('tenant_id'))
-            ->where('status', 'lunas')->sum('jumlah');
-        $totalTagihan = Tagihan::where('tenant_id', session('tenant_id'))
-            ->sum('jumlah');
-        $tagihanLunas = Tagihan::where('tenant_id', session('tenant_id'))
-            ->where('status', 'lunas')->count();
-        $tagihanBelumBayar = Tagihan::where('tenant_id', session('tenant_id'))
-            ->where('status', 'belum_bayar')->count();
+        $totalPendapatan = Pembayaran::where('status', 'berhasil')->sum('jumlah');
+        $totalTagihan = Tagihan::sum('jumlah');
+        $tagihanLunas = Tagihan::where('status', 'lunas')->count();
+        $tagihanBelumBayar = Tagihan::where('status', 'belum_bayar')->count();
 
         return view('laporan.index', compact(
             'totalPendapatan',

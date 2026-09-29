@@ -10,11 +10,11 @@
     </div>
     <div class="flex items-center gap-3">
         <div class="text-right">
-            <p class="font-semibold text-sm text-gray-800">{{ session('user_name', 'Admin') }}</p>
+            <p class="font-semibold text-sm text-gray-800">{{ auth()->user()->name }}</p>
             <p class="text-xs text-gray-500">Administrator</p>
         </div>
         <div class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-blue-800 text-white flex items-center justify-center font-bold">
-            {{ strtoupper(substr(session('user_name', 'A'), 0, 1)) }}
+            {{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
         </div>
     </div>
 </header>
@@ -61,7 +61,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse(\App\Models\Pembayaran::where('tenant_id', session('tenant_id'))->with('pelanggan')->latest()->take(5)->get() as $pembayaran)
+                            @forelse(\App\Models\Pembayaran::with('pelanggan')->latest()->take(5)->get() as $pembayaran)
                             <tr class="border-t">
                                 <td class="p-4 font-medium">{{ $pembayaran->pelanggan->nama ?? '-' }}</td>
                                 <td class="p-4 whitespace-nowrap">Rp {{ number_format($pembayaran->jumlah, 0, ',', '.') }}</td>
@@ -86,9 +86,9 @@
                 <div class="space-y-5">
                     @php
                         $totalPelanggan = $totalPelanggan > 0 ? $totalPelanggan : 1;
-                        $aktif = \App\Models\Pelanggan::where('tenant_id', session('tenant_id'))->where('status', 'aktif')->count();
-                        $menunggak = \App\Models\Pelanggan::where('tenant_id', session('tenant_id'))->where('status', 'menunggak')->count();
-                        $nonaktif = \App\Models\Pelanggan::where('tenant_id', session('tenant_id'))->where('status', 'nonaktif')->count();
+                        $aktif = \App\Models\Pelanggan::where('status', 'aktif')->count();
+                        $menunggak = \App\Models\Pelanggan::where('status', 'menunggak')->count();
+                        $nonaktif = \App\Models\Pelanggan::where('status', 'nonaktif')->count();
                     @endphp
                     <div>
                         <div class="flex justify-between mb-2"><span class="text-sm">Aktif</span><span class="font-semibold">{{ $aktif }}</span></div>
