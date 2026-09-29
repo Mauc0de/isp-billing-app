@@ -23,6 +23,8 @@ class Pelanggan extends Model
         'email',
         'alamat',
         'paket_id',
+        'router_id',
+        'mikrotik_username',
         'status',
         'tanggal_aktif',
     ];
@@ -34,6 +36,11 @@ class Pelanggan extends Model
     public function paket(): BelongsTo
     {
         return $this->belongsTo(Paket::class);
+    }
+
+    public function router(): BelongsTo
+    {
+        return $this->belongsTo(Router::class);
     }
 
     public function tagihan(): HasMany
