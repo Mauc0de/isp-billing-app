@@ -32,7 +32,7 @@
                         <td class="p-4 text-gray-500">{{ $p->paket->nama_paket ?? '-' }}</td>
                         <td class="p-4">
                             <span class="px-3 py-1 rounded-full text-xs
-                                {{ $p->status === 'aktif' ? 'bg-green-100 text-green-700' : ($p->status === 'menunggak' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700') }}">
+                                {{ $p->status === 'aktif' ? 'bg-green-100 text-green-700' : (in_array($p->status, ['menunggak', 'ditangguhkan'], true) ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700') }}">
                                 {{ $p->status }}
                             </span>
                         </td>

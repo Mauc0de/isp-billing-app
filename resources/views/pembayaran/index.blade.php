@@ -31,7 +31,7 @@
                         <td class="p-4 text-gray-500">{{ $p->metode_pembayaran ?? '-' }}</td>
                         <td class="p-4">
                             <span class="px-3 py-1 rounded-full text-xs
-                                {{ $p->status === 'lunas' ? 'bg-green-100 text-green-700' : ($p->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700') }}">
+                                {{ $p->status === 'berhasil' ? 'bg-green-100 text-green-700' : ($p->status === 'menunggu' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700') }}">
                                 {{ $p->status }}
                             </span>
                         </td>
