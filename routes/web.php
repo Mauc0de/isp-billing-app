@@ -16,7 +16,10 @@ Route::get('/', fn () => view('welcome'))->name('welcome');
 |
 */
 
-Route::get('/portal', fn () => view('portal.index'))->name('portal');
+Route::get('/portal', \App\Livewire\Portal\Dashboard::class)->name('portal');
+Route::get('/portal/tagihan', \App\Livewire\Portal\Tagihan::class)->name('portal.tagihan');
+Route::get('/portal/pembayaran', \App\Livewire\Portal\Pembayaran::class)->name('portal.pembayaran');
+Route::get('/portal/paket', \App\Livewire\Portal\Paket::class)->name('portal.paket');
 
 /*
 |--------------------------------------------------------------------------

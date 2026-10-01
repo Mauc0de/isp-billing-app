@@ -4,7 +4,7 @@ namespace App\Enums;
 
 enum CustomerStatus: string
 {
-    case Active = 'active';
+    case Active = 'aktif';
     case Suspended = 'suspended';
     case Terminated = 'terminated';
 }

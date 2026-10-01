@@ -101,7 +101,7 @@ class OverdueScanRunner
     private function oldestOutstandingInvoice(Customer $customer): ?Invoice
     {
         return $customer->invoices()
-            ->whereIn('status', ['unpaid', 'partial', 'overdue'])
+            ->whereIn('status', ['belum_bayar', 'sebagian', 'terlambat'])
             ->orderBy('due_date')
             ->first();
     }

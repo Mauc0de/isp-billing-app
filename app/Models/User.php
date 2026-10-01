@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use LogicException;
@@ -73,5 +74,10 @@ class User extends Authenticatable
         return $this->roles()
             ->whereHas('permissions', fn ($query) => $query->where('slug', $slug))
             ->exists();
+    }
+
+    public function customer(): HasOne
+    {
+        return $this->hasOne(Customer::class);
     }
 }

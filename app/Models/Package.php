@@ -46,4 +46,31 @@ class Package extends Model
     {
         return $this->hasMany(Invoice::class);
     }
+
+    /**
+     * Accessor untuk kecepatan paket (gabungan download/upload).
+     */
+    public function getSpeedAttribute(): string
+    {
+        $down = $this->price_down_mbps;
+        $up = $this->price_up_mbps;
+
+        if ($down && $up) {
+            return "{$down}/{$up} Mbps";
+        }
+
+        if ($down) {
+            return "{$down} Mbps";
+        }
+
+        return '-';
+    }
+
+    /**
+     * Accessor untuk status paket.
+     */
+    public function getStatusAttribute(): string
+    {
+        return $this->is_active ? 'aktif' : 'nonaktif';
+    }
 }
