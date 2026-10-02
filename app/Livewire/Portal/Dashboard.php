@@ -4,8 +4,10 @@ namespace App\Livewire\Portal;
 
 use App\Models\Pembayaran;
 use App\Models\Tagihan;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
+#[Layout('layouts::portal')]
 class Dashboard extends Component
 {
     public $pelanggan;

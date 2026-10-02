@@ -44,6 +44,9 @@
             @can('saldo.view')
             <a href="/saldo" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->is('saldo*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md font-semibold' : 'text-slate-600 hover:bg-slate-50' }}"><span>💰</span> Saldo</a>
             @endcan
+            @can('payment_requests.view')
+            <a href="/pembayaran-masuk" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->is('pembayaran-masuk*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md font-semibold' : 'text-slate-600 hover:bg-slate-50' }}"><span>📥</span> Pembayaran Masuk</a>
+            @endcan
         </nav>
         <div class="p-4 border-t border-slate-100">
             <form method="POST" action="{{ route('logout') }}">
@@ -79,6 +82,9 @@
                     @endcan
                     @can('saldo.view')
                     <a href="/saldo" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('saldo*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md shadow-blue-500/20 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#0066FF]' }}"><span class="text-base">💰</span> Saldo</a>
+                    @endcan
+                    @can('payment_requests.view')
+                    <a href="/pembayaran-masuk" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('pembayaran-masuk*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md shadow-blue-500/20 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#0066FF]' }}"><span class="text-base">📥</span> Pembayaran Masuk</a>
                     @endcan
                 </nav>
             </div>

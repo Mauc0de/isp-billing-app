@@ -3,12 +3,14 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PaymentRequestController;
 use App\Http\Controllers\SaldoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
 use App\Livewire\Portal\Dashboard;
 use App\Livewire\Portal\Paket;
 use App\Livewire\Portal\Pembayaran;
+use App\Livewire\Portal\PembayaranSaya;
 use App\Livewire\Portal\Tagihan;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +62,7 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->name('portal.')->group(
     Route::get('/', Dashboard::class)->name('index');
     Route::get('/tagihan', Tagihan::class)->name('tagihan');
     Route::get('/pembayaran', Pembayaran::class)->name('pembayaran');
+    Route::get('/pembayaran-saya', PembayaranSaya::class)->name('pembayaran-saya');
     Route::get('/paket', Paket::class)->name('paket');
 });
 
@@ -177,6 +180,28 @@ Route::middleware(['auth', 'tenant'])->group(function (): void {
     Route::post('/saldo/tagihan/{tagihan}/bayar', [SaldoController::class, 'payInvoice'])
         ->middleware('permission:saldo.manage')
         ->name('saldo.bayar');
+
+    /*
+    | Verifikasi Pembayaran
+    |---------------------
+    | Permintaan pembayaran dari pelanggan (transfer manual + bukti). Admin
+    | menyetujui untuk menerapkan ke saldo/tagihan, atau menolaknya.
+    */
+    Route::get('/pembayaran-masuk', [PaymentRequestController::class, 'index'])
+        ->middleware('permission:payment_requests.view')
+        ->name('payment-requests.index');
+
+    Route::get('/pembayaran-masuk/{paymentRequest}/bukti', [PaymentRequestController::class, 'proof'])
+        ->middleware('permission:payment_requests.view')
+        ->name('payment-requests.proof');
+
+    Route::post('/pembayaran-masuk/{paymentRequest}/setujui', [PaymentRequestController::class, 'approve'])
+        ->middleware('permission:payment_requests.verify')
+        ->name('payment-requests.approve');
+
+    Route::post('/pembayaran-masuk/{paymentRequest}/tolak', [PaymentRequestController::class, 'reject'])
+        ->middleware('permission:payment_requests.verify')
+        ->name('payment-requests.reject');
 });
 
 /*

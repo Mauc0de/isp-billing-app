@@ -3,9 +3,11 @@
 namespace App\Livewire\Portal;
 
 use App\Models\Tagihan as TagihanModel;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('layouts::portal')]
 class Tagihan extends Component
 {
     use WithPagination;

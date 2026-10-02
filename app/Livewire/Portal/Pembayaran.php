@@ -3,9 +3,11 @@
 namespace App\Livewire\Portal;
 
 use App\Models\Pembayaran as PembayaranModel;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('layouts::portal')]
 class Pembayaran extends Component
 {
     use WithPagination;

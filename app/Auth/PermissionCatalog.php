@@ -44,6 +44,10 @@ final class PermissionCatalog
 
     public const SALDO_MANAGE = 'saldo.manage';
 
+    public const PAYMENT_REQUESTS_VIEW = 'payment_requests.view';
+
+    public const PAYMENT_REQUESTS_VERIFY = 'payment_requests.verify';
+
     public const REPORTS_VIEW = 'reports.view';
 
     public const REPORTS_EXPORT = 'reports.export';
@@ -106,6 +110,9 @@ final class PermissionCatalog
 
             ['name' => 'Lihat saldo', 'slug' => self::SALDO_VIEW, 'permission_group' => 'saldo', 'description' => 'Melihat saldo dan riwayat mutasi pelanggan.'],
             ['name' => 'Kelola saldo', 'slug' => self::SALDO_MANAGE, 'permission_group' => 'saldo', 'description' => 'Top-up dan menyesuaikan saldo pelanggan.'],
+
+            ['name' => 'Lihat pembayaran masuk', 'slug' => self::PAYMENT_REQUESTS_VIEW, 'permission_group' => 'payment_requests', 'description' => 'Melihat permintaan pembayaran pelanggan.'],
+            ['name' => 'Verifikasi pembayaran', 'slug' => self::PAYMENT_REQUESTS_VERIFY, 'permission_group' => 'payment_requests', 'description' => 'Menyetujui atau menolak bukti pembayaran pelanggan.'],
 
             ['name' => 'Lihat laporan', 'slug' => self::REPORTS_VIEW, 'permission_group' => 'reports', 'description' => 'Melihat laporan.'],
             ['name' => 'Export laporan', 'slug' => self::REPORTS_EXPORT, 'permission_group' => 'reports', 'description' => 'Mengekspor laporan.'],

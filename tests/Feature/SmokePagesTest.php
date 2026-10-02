@@ -76,7 +76,10 @@ class SmokePagesTest extends TestCase
 
         foreach (['/portal', '/portal/tagihan', '/portal/pembayaran', '/portal/paket'] as $url) {
             $response = $this->actingAs($user)->get($url);
-            $this->assertSame(200, $response->status(), "Halaman {$url} gagal: ".$response->status());
+            $response->assertOk();
+            // Pastikan konten komponen benar-benar ter-render, bukan hanya
+            // layout kosong (bug layout Livewire pernah lolos dari cek status).
+            $response->assertSee('Solusi Internet');
         }
     }
 
