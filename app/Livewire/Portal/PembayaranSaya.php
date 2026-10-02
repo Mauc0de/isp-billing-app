@@ -6,6 +6,7 @@ use App\Enums\PaymentRequestPurpose;
 use App\Models\PaymentRequest;
 use App\Models\Tagihan;
 use App\Payments\PaymentGatewayFactory;
+use App\Settings\TenantSettings;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -81,7 +82,7 @@ class PembayaranSaya extends Component
         session()->flash('portal_status', 'Pembayaran terkirim. Mohon tunggu verifikasi admin.');
     }
 
-    public function render()
+    public function render(TenantSettings $settings)
     {
         $tagihans = $this->pelanggan
             ? Tagihan::query()
@@ -101,7 +102,7 @@ class PembayaranSaya extends Component
         return view('livewire.portal.pembayaran-saya', [
             'tagihans' => $tagihans,
             'riwayat' => $riwayat,
-            'bank' => config('payment.bank'),
+            'bank' => $settings->bank(),
         ]);
     }
 }

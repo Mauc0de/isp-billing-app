@@ -5,6 +5,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentRequestController;
 use App\Http\Controllers\SaldoController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
 use App\Livewire\Portal\Dashboard;
@@ -102,9 +103,13 @@ Route::middleware(['auth', 'tenant'])->group(function (): void {
         ->middleware('permission:reports.view')
         ->name('laporan.index');
 
-    Route::get('/pengaturan', [BillingController::class, 'pengaturan'])
+    Route::get('/pengaturan', [SettingController::class, 'index'])
         ->middleware('permission:settings.view')
         ->name('pengaturan.index');
+
+    Route::post('/pengaturan', [SettingController::class, 'update'])
+        ->middleware('permission:settings.update')
+        ->name('pengaturan.update');
 
     /*
     | Manajemen Pengguna

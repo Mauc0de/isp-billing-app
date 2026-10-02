@@ -57,7 +57,6 @@ class SmokePagesTest extends TestCase
             $this->assertSame(200, $response->status(), "Halaman {$url} gagal: ".$response->status());
         }
     }
-
     public function test_portal_pages_render_for_linked_customer(): void
     {
         $tenant = Tenant::factory()->create();

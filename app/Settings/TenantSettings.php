@@ -25,6 +25,18 @@ class TenantSettings
 
     public const REMINDER_DAYS_BEFORE = 'billing.reminder_days_before';
 
+    public const WHATSAPP_TEMPLATE_SUSPEND = 'whatsapp.templates.suspend';
+
+    public const WHATSAPP_TEMPLATE_REACTIVATE = 'whatsapp.templates.reactivate';
+
+    public const WHATSAPP_TEMPLATE_DUE_REMINDER = 'whatsapp.templates.due_reminder';
+
+    public const BANK_NAME = 'payment.bank_name';
+
+    public const BANK_NUMBER = 'payment.bank_number';
+
+    public const BANK_HOLDER = 'payment.bank_holder';
+
     /**
      * @return array<string, mixed>|null
      */
@@ -84,6 +96,20 @@ class TenantSettings
         $default = config('whatsapp.templates.'.$key);
 
         return is_string($default) ? $default : '';
+    }
+
+    /**
+     * Rekening bank untuk transfer manual, dengan fallback ke config.
+     *
+     * @return array{nama: string, nomor: string, atas_nama: string}
+     */
+    public function bank(): array
+    {
+        return [
+            'nama' => $this->string(self::BANK_NAME) ?? (string) config('payment.bank.nama'),
+            'nomor' => $this->string(self::BANK_NUMBER) ?? (string) config('payment.bank.nomor'),
+            'atas_nama' => $this->string(self::BANK_HOLDER) ?? (string) config('payment.bank.atas_nama'),
+        ];
     }
 
     public function put(string $key, mixed $value, string $type = 'string'): void

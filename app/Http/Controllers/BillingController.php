@@ -47,9 +47,4 @@ class BillingController extends Controller
             'tagihanBelumBayar' => Tagihan::where('status', 'belum_bayar')->count(),
         ]);
     }
-
-    public function pengaturan(): View
-    {
-        return view('pengaturan.index');
-    }
 }
