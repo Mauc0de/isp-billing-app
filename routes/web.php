@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VoucherController;
 use App\Livewire\Portal\Dashboard;
 use App\Livewire\Portal\Paket;
 use App\Livewire\Portal\Pembayaran;
@@ -127,6 +128,28 @@ Route::middleware(['auth', 'tenant'])->group(function (): void {
     Route::patch('/pengguna/{user}/password', [UserController::class, 'resetPassword'])
         ->middleware('permission:users.update')
         ->name('users.password');
+
+    /*
+    | Voucher Hotspot
+    |---------------
+    | Generator kupon prepaid ala PHPNuxBill: buat batch, cetak, dan hapus
+    | voucher yang belum terpakai.
+    */
+    Route::get('/voucher', [VoucherController::class, 'index'])
+        ->middleware('permission:vouchers.view')
+        ->name('vouchers.index');
+
+    Route::post('/voucher', [VoucherController::class, 'store'])
+        ->middleware('permission:vouchers.create')
+        ->name('vouchers.store');
+
+    Route::get('/voucher/batch/{batch}', [VoucherController::class, 'batch'])
+        ->middleware('permission:vouchers.view')
+        ->name('vouchers.batch');
+
+    Route::delete('/voucher/{voucher}', [VoucherController::class, 'destroy'])
+        ->middleware('permission:vouchers.delete')
+        ->name('vouchers.destroy');
 });
 
 /*
