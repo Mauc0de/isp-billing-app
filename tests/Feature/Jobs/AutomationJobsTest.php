@@ -9,7 +9,7 @@ use App\Enums\WhatsappProvider;
 use App\Enums\WhatsappStatus;
 use App\Jobs\SendWhatsappNotification;
 use App\Mikrotik\RouterClientFactory;
-use App\Models\Customer;
+use App\Models\Pelanggan;
 use App\Models\Router;
 use App\Models\Tenant;
 use App\Models\WhatsappNotification;
@@ -60,10 +60,10 @@ class AutomationJobsTest extends TestCase
         app(TenantContext::class)->forget();
 
         $notificationId = $this->inTenant($this->tenant, function (): string {
-            $customer = Customer::query()->where('customer_number', 'OWN-TENANT')->firstOrFail();
+            $customer = Pelanggan::query()->where('customer_number', 'OWN-TENANT')->firstOrFail();
 
             return (string) WhatsappNotification::query()->create([
-                'customer_id' => $customer->getKey(),
+                'pelanggan_id' => $customer->getKey(),
                 'to_number' => '6281234567890',
                 'message' => 'Halo',
                 'status' => WhatsappStatus::Queued,
@@ -95,7 +95,7 @@ class AutomationJobsTest extends TestCase
             $customer = $this->makeCustomer($this->tenant);
 
             WhatsappNotification::query()->create([
-                'customer_id' => $customer->getKey(),
+                'pelanggan_id' => $customer->getKey(),
                 'to_number' => '6281234567890',
                 'message' => 'Halo',
                 'status' => WhatsappStatus::Sent,
@@ -129,7 +129,7 @@ class AutomationJobsTest extends TestCase
             $customer = $this->makeCustomer($this->tenant);
 
             WhatsappNotification::query()->create([
-                'customer_id' => $customer->getKey(),
+                'pelanggan_id' => $customer->getKey(),
                 'to_number' => '6281234567890',
                 'message' => 'Halo',
                 'status' => WhatsappStatus::Queued,
@@ -299,13 +299,13 @@ class AutomationJobsTest extends TestCase
             foreach ($cases as $input => $expected) {
                 $this->assertSame(
                     $expected,
-                    Customer::normalizePhoneNumber($input),
+                    Pelanggan::normalizePhoneNumber($input),
                     "Gagal menormalisasi {$input}",
                 );
             }
 
-            $this->assertNull(Customer::normalizePhoneNumber(null));
-            $this->assertNull(Customer::normalizePhoneNumber('-'));
+            $this->assertNull(Pelanggan::normalizePhoneNumber(null));
+            $this->assertNull(Pelanggan::normalizePhoneNumber('-'));
         });
     }
 
@@ -342,7 +342,7 @@ class AutomationJobsTest extends TestCase
 
             $this->makeInvoice($customer, [
                 'invoice_number' => 'OTHER-INV',
-                'status' => InvoiceStatus::Unpaid,
+                'status' => InvoiceStatus::BelumBayar,
                 'due_date' => now()->subDays(60)->toDateString(),
             ]);
         });
@@ -372,10 +372,10 @@ class AutomationJobsTest extends TestCase
     {
         $this->inTenant($this->tenant, function (): void {
             $customer = $this->makeCustomer($this->tenant, [
-                'status' => CustomerStatus::Suspended,
+                'status' => CustomerStatus::Ditangguhkan,
             ]);
 
-            $this->assertSame(CustomerStatus::Suspended, $customer->refresh()->status);
+            $this->assertSame(CustomerStatus::Ditangguhkan, $customer->refresh()->status);
         });
     }
 

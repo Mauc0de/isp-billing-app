@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Portal;
 
-use App\Models\Payment;
+use App\Models\Pembayaran as PembayaranModel;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -10,17 +10,17 @@ class Pembayaran extends Component
 {
     use WithPagination;
 
-    public $customer;
+    public $pelanggan;
 
     public function mount()
     {
-        $this->customer = auth()->user()->customer ?? null;
+        $this->pelanggan = auth()->user()?->pelanggan ?? null;
     }
 
     public function render()
     {
-        $pembayarans = Payment::with('invoice')
-            ->where('customer_id', $this->customer?->id)
+        $pembayarans = PembayaranModel::with('tagihan')
+            ->where('pelanggan_id', $this->pelanggan?->id)
             ->latest()
             ->paginate(10);
 

@@ -72,9 +72,9 @@
                             <tbody>
                                 @forelse($pembayarans as $pembayaran)
                                     <tr class="border-b border-slate-50 hover:bg-slate-50/60 transition">
-                                        <td class="px-6 py-4 font-semibold text-[13px] text-slate-900">{{ $pembayaran->paid_at?->format('d M Y') }}</td>
-                                        <td class="px-6 py-4 text-[13px] text-slate-500">{{ $pembayaran->method }}</td>
-                                        <td class="px-6 py-4 text-[13px] font-bold text-slate-900 font-mono">Rp {{ number_format($pembayaran->amount, 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4 font-semibold text-[13px] text-slate-900">{{ $pembayaran->tanggal_bayar?->format('d M Y') }}</td>
+                                        <td class="px-6 py-4 text-[13px] text-slate-500">{{ $pembayaran->metode_pembayaran }}</td>
+                                        <td class="px-6 py-4 text-[13px] font-bold text-slate-900 font-mono">Rp {{ number_format($pembayaran->jumlah, 0, ',', '.') }}</td>
                                         <td class="px-6 py-4">
                                             @if($pembayaran->status === 'berhasil')
                                                 <span class="bg-[#F0FDF4] text-[#059669] flex items-center w-fit gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border border-[#D1FAE5]">

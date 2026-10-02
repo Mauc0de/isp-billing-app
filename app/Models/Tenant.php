@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Tenant extends Model
 {
-    use HasFactory, HasUlids;
+    use HasFactory;
+    use HasUlids;
 
     protected $fillable = [
         'name',
@@ -21,12 +22,9 @@ class Tenant extends Model
         'is_active',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     public function users(): HasMany
     {
@@ -38,24 +36,24 @@ class Tenant extends Model
         return $this->hasMany(Role::class);
     }
 
-    public function packages(): HasMany
+    public function pelanggan(): HasMany
     {
-        return $this->hasMany(Package::class);
+        return $this->hasMany(Pelanggan::class);
     }
 
-    public function customers(): HasMany
+    public function paket(): HasMany
     {
-        return $this->hasMany(Customer::class);
+        return $this->hasMany(Paket::class);
     }
 
-    public function invoices(): HasMany
+    public function tagihan(): HasMany
     {
-        return $this->hasMany(Invoice::class);
+        return $this->hasMany(Tagihan::class);
     }
 
-    public function payments(): HasMany
+    public function pembayaran(): HasMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Pembayaran::class);
     }
 
     public function routers(): HasMany

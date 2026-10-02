@@ -8,7 +8,15 @@ use Illuminate\Support\Facades\Schema;
  * Fondasi Integrasi & Automasi (Backend 2).
  *
  * Menambahkan tabel routers, suspend_logs, wa_notifications, settings, serta
- * kolom Customers untuk menautkan pelanggan ke router tempatdia dilayani.
+ * kolom pada pelanggans untuk menautkan pelanggan ke router tempat dia dilayani.
+ *
+ * Versi ini sudah disesuaikan dengan penamaan Indonesia yang dipakai repositori:
+ * - customers  -> pelanggans  (kolom customer_id  -> pelanggan_id)
+ * - invoices   -> tagihans    (kolom invoice_id   -> tagihan_id)
+ * - packages   -> pakets      (kolom package_id   -> paket_id)
+ *
+ * Nomor migration sengaja diletakkan SETELAH 2026_09_25_072000_create_billing_tables
+ * karena foreign key-nya mengacu ke tabel pelanggans & tagihans yang dibuat di sana.
  */
 return new class extends Migration
 {
@@ -43,19 +51,19 @@ return new class extends Migration
 
         // Pelanggan dilayani oleh satu router. Kolom nullable supaya aman untuk
         // data lama dan untuk tenant yang belum onboarding router sama sekali.
-        Schema::table('customers', function (Blueprint $table) {
-            $table->foreignUlid('router_id')->nullable()->after('package_id');
+        Schema::table('pelanggans', function (Blueprint $table) {
+            $table->foreignUlid('router_id')->nullable()->after('paket_id');
             $table->string('mikrotik_username')->nullable()->after('router_id');
 
-            $table->index(['tenant_id', 'router_id'], 'customers_tenant_router_idx');
+            $table->index(['tenant_id', 'router_id'], 'pelanggans_tenant_router_idx');
         });
 
         Schema::create('suspend_logs', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
-            $table->foreignUlid('customer_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('pelanggan_id')->constrained('pelanggans')->cascadeOnDelete();
             $table->foreignUlid('router_id')->nullable();
-            $table->foreignUlid('invoice_id')->nullable();
+            $table->foreignUlid('tagihan_id')->nullable();
             $table->foreignUlid('performed_by_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('action', 32);
             $table->string('source', 32);
@@ -68,9 +76,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('router_id')->references('id')->on('routers')->nullOnDelete();
-            $table->foreign('invoice_id')->references('id')->on('invoices')->nullOnDelete();
+            $table->foreign('tagihan_id')->references('id')->on('tagihans')->nullOnDelete();
 
-            $table->index(['tenant_id', 'customer_id'], 'suspend_logs_tenant_customer_idx');
+            $table->index(['tenant_id', 'pelanggan_id'], 'suspend_logs_tenant_pelanggan_idx');
             $table->index(['tenant_id', 'performed_at'], 'suspend_logs_tenant_performed_idx');
             $table->index(['tenant_id', 'action', 'status'], 'suspend_logs_tenant_action_idx');
         });
@@ -78,8 +86,8 @@ return new class extends Migration
         Schema::create('wa_notifications', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
-            $table->foreignUlid('customer_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignUlid('invoice_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUlid('pelanggan_id')->nullable()->constrained('pelanggans')->nullOnDelete();
+            $table->foreignUlid('tagihan_id')->nullable()->constrained('tagihans')->nullOnDelete();
             $table->foreignUlid('suspend_log_id')->nullable()->constrained()->nullOnDelete();
             $table->string('to_number', 30);
             $table->text('message');
@@ -93,7 +101,7 @@ return new class extends Migration
 
             $table->index(['tenant_id', 'status'], 'wa_notifications_tenant_status_idx');
             $table->index(['tenant_id', 'created_at'], 'wa_notifications_tenant_created_idx');
-            $table->index(['tenant_id', 'customer_id'], 'wa_notifications_tenant_customer_idx');
+            $table->index(['tenant_id', 'pelanggan_id'], 'wa_notifications_tenant_pelanggan_idx');
         });
 
         Schema::create('settings', function (Blueprint $table) {
@@ -114,8 +122,8 @@ return new class extends Migration
         Schema::dropIfExists('wa_notifications');
         Schema::dropIfExists('suspend_logs');
 
-        Schema::table('customers', function (Blueprint $table) {
-            $table->dropIndex('customers_tenant_router_idx');
+        Schema::table('pelanggans', function (Blueprint $table) {
+            $table->dropIndex('pelanggans_tenant_router_idx');
             $table->dropColumn(['router_id', 'mikrotik_username']);
         });
 

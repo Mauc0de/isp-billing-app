@@ -17,10 +17,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(TenantContext::class);
 
-        // Scoped, bukan singleton: cache di dalam TenantSettings harus
-        // dibuang di antara request, tapi tetap dipakai di dalam satu siklus
-        // request/job. Perpindahan tenant di tengah satu proses ditangani
-        // TenantRunner bersama CacheRepository.
+        // Scoped, bukan singleton: cache di dalam TenantSettings harus dibuang
+        // di antara request, tapi tetap dipakai di dalam satu siklus request/job.
         $this->app->scoped(TenantSettings::class);
     }
 

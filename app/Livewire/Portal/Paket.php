@@ -2,18 +2,18 @@
 
 namespace App\Livewire\Portal;
 
-use App\Models\Customer;
 use Livewire\Component;
 
 class Paket extends Component
 {
-    public $customer;
-    public $package;
+    public $pelanggan;
+
+    public $paket;
 
     public function mount()
     {
-        $this->customer = auth()->user()->customer ?? null;
-        $this->package = $this->customer?->package;
+        $this->pelanggan = auth()->user()?->pelanggan ?? null;
+        $this->paket = $this->pelanggan?->paket;
     }
 
     public function render()

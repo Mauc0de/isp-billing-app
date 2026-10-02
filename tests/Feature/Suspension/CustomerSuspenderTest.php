@@ -12,10 +12,10 @@ use App\Enums\WhatsappStatus;
 use App\Exceptions\RouterOperationFailed;
 use App\Jobs\SendWhatsappNotification;
 use App\Mikrotik\RouterClientFactory;
-use App\Models\Customer;
-use App\Models\Invoice;
+use App\Models\Pelanggan;
 use App\Models\Router;
 use App\Models\SuspendLog;
+use App\Models\Tagihan;
 use App\Models\Tenant;
 use App\Models\WhatsappNotification;
 use App\Suspension\CustomerSuspender;
@@ -56,7 +56,7 @@ class CustomerSuspenderTest extends TestCase
             $router = $customer->router;
 
             $log = app(CustomerSuspender::class)->suspend(
-                customer: $customer,
+                pelanggan: $customer,
                 source: SuspensionSource::Overdue,
                 reason: 'Tagihan lewat jatuh tempo.',
             );
@@ -68,7 +68,7 @@ class CustomerSuspenderTest extends TestCase
             $this->assertSame($router->getKey(), $log->router_id);
 
             $customer->refresh();
-            $this->assertSame(CustomerStatus::Suspended, $customer->status);
+            $this->assertSame(CustomerStatus::Ditangguhkan, $customer->status);
             $this->assertSame(SuspensionSource::Overdue, $customer->suspension_source);
             $this->assertNotNull($customer->suspended_at);
 
@@ -86,9 +86,9 @@ class CustomerSuspenderTest extends TestCase
             $invoice = $this->makeInvoice($customer, ['total' => 150000]);
 
             app(CustomerSuspender::class)->suspend(
-                customer: $customer,
+                pelanggan: $customer,
                 source: SuspensionSource::Overdue,
-                invoice: $invoice,
+                tagihan: $invoice,
             );
 
             $notification = WhatsappNotification::query()->sole();
@@ -110,7 +110,7 @@ class CustomerSuspenderTest extends TestCase
             $customer = $this->makeCustomer();
 
             $log = app(CustomerSuspender::class)->suspend(
-                customer: $customer,
+                pelanggan: $customer,
                 source: SuspensionSource::Overdue,
             );
 
@@ -118,21 +118,21 @@ class CustomerSuspenderTest extends TestCase
             $this->assertStringContainsString('Tidak bisa menghubungi', (string) $log->error);
 
             // Status harus tetap Active supaya pemindaian berikutnya mencoba lagi.
-            $this->assertSame(CustomerStatus::Active, $customer->refresh()->status);
+            $this->assertSame(CustomerStatus::Aktif, $customer->refresh()->status);
         });
     }
 
     public function test_customer_without_router_link_is_skipped(): void
     {
         $this->inTenant(function (): void {
-            $customer = Customer::query()->create([
+            $customer = Pelanggan::query()->create([
                 'customer_number' => 'CUSTOMER-X',
-                'name' => 'Tanpa Router',
-                'status' => CustomerStatus::Active,
+                'nama' => 'Tanpa Router',
+                'status' => CustomerStatus::Aktif,
             ]);
 
             $log = app(CustomerSuspender::class)->suspend(
-                customer: $customer,
+                pelanggan: $customer,
                 source: SuspensionSource::Manual,
             );
 
@@ -148,12 +148,12 @@ class CustomerSuspenderTest extends TestCase
             $customer = $this->makeCustomer();
 
             app(CustomerSuspender::class)->suspend(
-                customer: $customer,
+                pelanggan: $customer,
                 source: SuspensionSource::Overdue,
             );
 
             $second = app(CustomerSuspender::class)->suspend(
-                customer: $customer->refresh(),
+                pelanggan: $customer->refresh(),
                 source: SuspensionSource::Overdue,
             );
 
@@ -177,16 +177,16 @@ class CustomerSuspenderTest extends TestCase
                 ->usingAddressList()
                 ->create();
 
-            $customer = Customer::query()->create([
+            $customer = Pelanggan::query()->create([
                 'router_id' => $router->getKey(),
                 'mikrotik_username' => 'ppp-0001',
                 'customer_number' => 'CUSTOMER-ADDR',
-                'name' => 'Pelanggan Address List',
-                'status' => CustomerStatus::Active,
+                'nama' => 'Pelanggan Address List',
+                'status' => CustomerStatus::Aktif,
             ]);
 
             $log = app(CustomerSuspender::class)->suspend(
-                customer: $customer,
+                pelanggan: $customer,
                 source: SuspensionSource::Overdue,
             );
 
@@ -199,7 +199,7 @@ class CustomerSuspenderTest extends TestCase
             $this->assertSame('address_list', $this->router->calls[0]['method']);
             $this->assertSame('ppp_secret', $this->router->calls[1]['method']);
 
-            $this->assertSame(CustomerStatus::Suspended, $customer->refresh()->status);
+            $this->assertSame(CustomerStatus::Ditangguhkan, $customer->refresh()->status);
         });
     }
 
@@ -209,7 +209,7 @@ class CustomerSuspenderTest extends TestCase
             $customer = $this->makeCustomer();
 
             app(CustomerSuspender::class)->suspend(
-                customer: $customer,
+                pelanggan: $customer,
                 source: SuspensionSource::Overdue,
             );
 
@@ -219,7 +219,7 @@ class CustomerSuspenderTest extends TestCase
             $this->assertSame(SuspendAction::Reactivate, $log->action);
 
             $customer->refresh();
-            $this->assertSame(CustomerStatus::Active, $customer->status);
+            $this->assertSame(CustomerStatus::Aktif, $customer->status);
             $this->assertNull($customer->suspension_source);
             $this->assertNull($customer->suspended_at);
             $this->assertNull($customer->status_reason);
@@ -238,38 +238,33 @@ class CustomerSuspenderTest extends TestCase
         });
     }
 
-    private function makeCustomer(): Customer
+    private function makeCustomer(): Pelanggan
     {
         $router = Router::factory()->forTenant($this->tenant)->create();
 
-        return Customer::query()->create([
+        return Pelanggan::query()->create([
             'router_id' => $router->getKey(),
             'mikrotik_username' => 'ppp-0001',
             'customer_number' => 'CUSTOMER-001',
-            'name' => 'Budi Santoso',
-            'phone' => '081234567890',
+            'nama' => 'Budi Santoso',
+            'telepon' => '081234567890',
             'whatsapp_number' => '0812 3456 7890',
-            'status' => CustomerStatus::Active,
+            'status' => CustomerStatus::Aktif,
         ]);
     }
 
     /**
      * @param  array<string, mixed>  $attributes
      */
-    private function makeInvoice(Customer $customer, array $attributes = []): Invoice
+    private function makeInvoice(Pelanggan $pelanggan, array $attributes = []): Tagihan
     {
-        return Invoice::query()->create(array_merge([
-            'customer_id' => $customer->getKey(),
-            'invoice_number' => 'INV-2026-0001',
-            'status' => InvoiceStatus::Unpaid,
-            'package_name' => 'Paket 10 Mbps',
-            'period_start' => now()->startOfMonth()->toDateString(),
-            'period_end' => now()->endOfMonth()->toDateString(),
-            'due_date' => now()->subDays(5)->toDateString(),
-            'amount' => 150000,
-            'discount' => 0,
-            'total' => 150000,
-            'generated_at' => now(),
+        return Tagihan::query()->create(array_merge([
+            'pelanggan_id' => $pelanggan->getKey(),
+            'nomor_tagihan' => 'INV-2026-0001',
+            'status' => InvoiceStatus::BelumBayar,
+            'jumlah' => 150000,
+            'tanggal_terbit' => now()->startOfMonth()->toDateString(),
+            'jatuh_tempo' => now()->subDays(5)->toDateString(),
         ], $attributes));
     }
 

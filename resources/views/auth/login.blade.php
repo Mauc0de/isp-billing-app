@@ -3,57 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SATAK</title>
+    <title>SATAK Keuangan - Masuk</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 relative">
-    <!-- blurred background image -->
-    <div class="absolute inset-0" style="background-image:url('/latar.jpeg'); background-size:cover; background-position:center; filter:blur(2px);"></div>
-    <!-- dark overlay for contrast -->
-    <div class="absolute inset-0 bg-[#0d3b66] opacity-30"></div>
-    <!-- login card -->
-    <div class="relative bg-white rounded-xl shadow-xl w-full max-w-[360px] px-8 pt-8 pb-10 z-10">
-        <div class="flex flex-col items-center">
-            <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                <svg viewBox="0 0 100 100" class="w-16 h-16">
-                    <circle cx="50" cy="50" r="50" fill="#f3f4f6"/>
-                    <ellipse cx="50" cy="78" rx="26" ry="12" fill="#14b8a6"/>
-                    <circle cx="50" cy="42" r="22" fill="#ffcc9e"/>
-                    <path d="M28 38 C28 18 42 12 50 14 C68 16 74 28 72 42 C68 38 62 32 56 30 C56 30 53 18 38 22 C32 24 28 30 28 38Z" fill="#111827"/>
-                    <circle cx="62" cy="20" r="7" fill="#111827"/>
-                </svg>
+<body class="font-sans antialiased min-h-screen relative">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('{{ asset('latar.jpeg') }}')"></div>
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
+    <div class="relative z-10 min-h-screen flex items-center justify-center py-6 px-4">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-2xl border border-white/20 p-6 sm:p-8">
+                <div class="flex flex-col items-center mb-6">
+                    <img src="{{ asset('satak.jpeg') }}" alt="Logo SATAK" class="w-14 h-14 rounded-2xl object-contain shadow-sm border border-slate-100">
+                    <h1 class="mt-3 text-xl font-black tracking-tight bg-gradient-to-r from-[#00A896] via-[#0066FF] to-[#004BD6] bg-clip-text text-transparent">SATAK</h1>
+                    <p class="text-[11px] font-semibold text-slate-400 tracking-widest">KONEK TERUS</p>
+                </div>
+
+                <div class="flex p-1 bg-slate-100 rounded-full mb-6">
+                    <button type="button" id="tab-pelanggan" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition bg-white shadow text-slate-900">Pelanggan</button>
+                    <button type="button" id="tab-admin" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition text-slate-500">Admin</button>
+                </div>
+
+                <div class="bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] p-[1.5px] rounded-xl mb-6">
+                    <div class="bg-white rounded-[10px] px-4 py-3">
+                        <h2 id="head-title" class="text-sm font-bold text-slate-900">Masuk sebagai Pelanggan</h2>
+                        <p id="head-desc" class="text-xs text-slate-500">Lihat tagihan & riwayat pembayaran</p>
+                    </div>
+                </div>
+
+                @if($errors->any())
+                    <div class="mb-4 bg-red-50 text-red-600 text-xs px-3 py-2.5 rounded-lg border border-red-200">{{ $errors->first() }}</div>
+                @endif
+
+                <form method="POST" action="/login" class="space-y-4" id="login-form">
+                    @csrf
+                    <input type="hidden" name="role" id="role-input" value="pelanggan">
+                    <div>
+                        <label class="block text-[11px] font-bold tracking-wider text-slate-600 mb-2">EMAIL / USERNAME</label>
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                                <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="m3 7 9 6 9-6"/></svg>
+                            </span>
+                            <input id="email-input" type="email" name="email" value="{{ old('email') }}" placeholder="pelanggan@email.com" required class="w-full pl-10 pr-4 py-3 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder-slate-400">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold tracking-wider text-slate-600 mb-2">PASSWORD</label>
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                                <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path stroke-linecap="round" d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                            </span>
+                            <input id="login_password" type="password" name="password" placeholder="••••••••" required class="w-full pl-10 pr-11 py-3 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder-slate-400">
+                            <button type="button" onclick="document.getElementById('login_password').type=document.getElementById('login_password').type==='password'?'text':'password'" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <a href="#" class="text-xs font-medium text-blue-600 hover:underline">Lupa Password?</a>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white text-sm font-bold py-3.5 rounded-xl shadow-md">Masuk</button>
+                </form>
+
+                <div class="mt-6 pt-5 border-t border-slate-100 text-center">
+                    <p class="text-xs text-slate-500">Belum punya akun? <a href="/register" class="font-semibold text-blue-600 hover:underline">Daftar</a></p>
+                    <p class="text-[11px] text-slate-400 mt-2">&copy; 2026 SATAK. All rights reserved.</p>
+                </div>
             </div>
-            <h1 class="mt-3 text-[18px] font-bold tracking-wide text-gray-900">WELCOME</h1>
         </div>
-
-        @if($errors->any())
-            <div class="mt-4 bg-red-50 text-red-600 text-xs px-3 py-2 rounded">{{ $errors->first() }}</div>
-        @endif
-
-        <form method="POST" action="/login" class="mt-6">
-            @csrf
-            <div class="relative border-b border-gray-200 focus-within:border-teal-500">
-                <span class="absolute left-0 top-3 text-gray-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                </span>
-                <input type="text" name="email" value="{{ old('email') }}" placeholder="Username" required class="w-full pl-7 pr-2 py-2.5 text-sm bg-transparent outline-none placeholder-gray-400">
-            </div>
-
-            <div class="relative border-b border-gray-200 focus-within:border-teal-500 mt-4">
-                <span class="absolute left-0 top-3 text-gray-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15a2 2 0 100-4 2 2 0 000 4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 11V8a5 5 0 00-10 0v3"/><path stroke-linecap="round" stroke-linejoin="round" d="M5 11h14v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8z"/></svg>
-                </span>
-                <input type="password" name="password" placeholder="Password" required class="w-full pl-7 pr-2 py-2.5 text-sm bg-transparent outline-none placeholder-gray-400">
-            </div>
-
-            <div class="text-right mt-2">
-                <a href="#" class="text-[11px] text-gray-400 hover:text-gray-600">Forgot password?</a>
-            </div>
-
-            <button type="submit" class="mt-6 w-full bg-[#1abc9c] hover:bg-[#16a085] text-white text-sm font-semibold tracking-wide py-3 rounded-full shadow-md transition">LOGIN</button>
-        </form>
-
-        <p class="mt-6 text-center text-xs text-gray-400">Belum punya akun? <a href="/register" class="text-[#1abc9c] hover:underline font-medium">Daftar</a></p>
     </div>
+    <script>
+        const tabAdmin=document.getElementById('tab-admin');
+        const tabPel=document.getElementById('tab-pelanggan');
+        const roleInput=document.getElementById('role-input');
+        const headTitle=document.getElementById('head-title');
+        const headDesc=document.getElementById('head-desc');
+        const emailInput=document.getElementById('email-input');
+        function setRole(r){
+            roleInput.value=r;
+            if(r==='admin'){
+                tabAdmin.className='flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition bg-white shadow text-slate-900';
+                tabPel.className='flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition text-slate-500';
+                headTitle.textContent='Masuk sebagai Admin';
+                headDesc.textContent='Kelola pelanggan, tagihan & laporan';
+                emailInput.placeholder='admin@satak.net';
+            } else {
+                tabPel.className='flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition bg-white shadow text-slate-900';
+                tabAdmin.className='flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition text-slate-500';
+                headTitle.textContent='Masuk sebagai Pelanggan';
+                headDesc.textContent='Lihat tagihan & riwayat pembayaran';
+                emailInput.placeholder='pelanggan@email.com';
+            }
+        }
+        tabAdmin.addEventListener('click',()=>setRole('admin'));
+        tabPel.addEventListener('click',()=>setRole('pelanggan'));
+    </script>
 </body>
 </html>

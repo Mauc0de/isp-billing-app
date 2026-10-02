@@ -9,10 +9,10 @@ use App\Enums\SuspendLogStatus;
 use App\Enums\SuspensionSource;
 use App\Exceptions\RouterOperationFailed;
 use App\Mikrotik\RouterClientFactory;
-use App\Models\Customer;
-use App\Models\Invoice;
+use App\Models\Pelanggan;
 use App\Models\Router;
 use App\Models\SuspendLog;
+use App\Models\Tagihan;
 use App\Models\User;
 use App\Whatsapp\WhatsappNotifier;
 use Illuminate\Support\Facades\DB;
@@ -36,33 +36,33 @@ class CustomerSuspender
     ) {}
 
     public function suspend(
-        Customer $customer,
+        Pelanggan $pelanggan,
         SuspensionSource $source,
-        ?Invoice $invoice = null,
+        ?Tagihan $tagihan = null,
         ?string $reason = null,
         ?User $actor = null,
     ): SuspendLog {
-        if ($customer->status === CustomerStatus::Suspended) {
+        if ($pelanggan->status === CustomerStatus::Ditangguhkan) {
             return $this->skip(
-                $customer,
+                $pelanggan,
                 SuspendAction::Suspend,
                 $source,
                 'Pelanggan sudah dalam status suspended.',
-                $invoice,
+                $tagihan,
                 $actor,
             );
         }
 
-        $router = $customer->router;
-        $username = $customer->mikrotik_username;
+        $router = $pelanggan->router;
+        $username = $pelanggan->mikrotik_username;
 
         if ($router === null || $username === null || $username === '') {
             return $this->skip(
-                $customer,
+                $pelanggan,
                 SuspendAction::Suspend,
                 $source,
                 'Pelanggan belum ditautkan ke router atau belum punya username Mikrotik.',
-                $invoice,
+                $tagihan,
                 $actor,
             );
         }
@@ -71,20 +71,20 @@ class CustomerSuspender
 
         if ($method['error'] !== null) {
             return $this->fail(
-                customer: $customer,
+                pelanggan: $pelanggan,
                 action: SuspendAction::Suspend,
                 source: $source,
                 method: $method['method'],
                 reason: $reason,
                 error: $method['error']->getMessage(),
                 router: $router,
-                invoice: $invoice,
+                tagihan: $tagihan,
                 actor: $actor,
             );
         }
 
-        $customer->forceFill([
-            'status' => CustomerStatus::Suspended,
+        $pelanggan->forceFill([
+            'status' => CustomerStatus::Ditangguhkan,
             'suspension_source' => $source,
             'status_reason' => $reason,
             'suspended_at' => now(),
@@ -92,10 +92,10 @@ class CustomerSuspender
         ])->save();
 
         $log = SuspendLog::query()->create([
-            'tenant_id' => $customer->tenant_id,
-            'customer_id' => $customer->getKey(),
+            'tenant_id' => $pelanggan->tenant_id,
+            'pelanggan_id' => $pelanggan->getKey(),
             'router_id' => $router->getKey(),
-            'invoice_id' => $invoice?->getKey(),
+            'tagihan_id' => $tagihan?->getKey(),
             'performed_by_id' => $actor?->getKey(),
             'action' => SuspendAction::Suspend,
             'source' => $source,
@@ -106,21 +106,21 @@ class CustomerSuspender
             'performed_at' => now(),
         ]);
 
-        $this->notifier->notifySuspended($log, $customer, $invoice);
+        $this->notifier->notifySuspended($log, $pelanggan, $tagihan);
 
         return $log;
     }
 
     public function reactivate(
-        Customer $customer,
+        Pelanggan $pelanggan,
         ?string $reason = null,
         ?User $actor = null,
     ): SuspendLog {
-        $source = $customer->suspension_source ?? SuspensionSource::Manual;
+        $source = $pelanggan->suspension_source ?? SuspensionSource::Manual;
 
-        if ($customer->status !== CustomerStatus::Suspended) {
+        if ($pelanggan->status !== CustomerStatus::Ditangguhkan) {
             return $this->skip(
-                $customer,
+                $pelanggan,
                 SuspendAction::Reactivate,
                 $source,
                 'Pelanggan tidak dalam status suspended.',
@@ -129,12 +129,12 @@ class CustomerSuspender
             );
         }
 
-        $router = $customer->router;
-        $username = $customer->mikrotik_username;
+        $router = $pelanggan->router;
+        $username = $pelanggan->mikrotik_username;
 
         if ($router === null || $username === null || $username === '') {
             return $this->skip(
-                $customer,
+                $pelanggan,
                 SuspendAction::Reactivate,
                 $source,
                 'Pelanggan belum ditautkan ke router atau belum punya username Mikrotik.',
@@ -147,20 +147,20 @@ class CustomerSuspender
 
         if ($method['error'] !== null) {
             return $this->fail(
-                customer: $customer,
+                pelanggan: $pelanggan,
                 action: SuspendAction::Reactivate,
                 source: $source,
                 method: $method['method'],
                 reason: $reason,
                 error: $method['error']->getMessage(),
                 router: $router,
-                invoice: null,
+                tagihan: null,
                 actor: $actor,
             );
         }
 
-        $customer->forceFill([
-            'status' => CustomerStatus::Active,
+        $pelanggan->forceFill([
+            'status' => CustomerStatus::Aktif,
             'suspension_source' => null,
             'status_reason' => null,
             'suspended_at' => null,
@@ -168,8 +168,8 @@ class CustomerSuspender
         ])->save();
 
         $log = SuspendLog::query()->create([
-            'tenant_id' => $customer->tenant_id,
-            'customer_id' => $customer->getKey(),
+            'tenant_id' => $pelanggan->tenant_id,
+            'pelanggan_id' => $pelanggan->getKey(),
             'router_id' => $router->getKey(),
             'performed_by_id' => $actor?->getKey(),
             'action' => SuspendAction::Reactivate,
@@ -181,7 +181,7 @@ class CustomerSuspender
             'performed_at' => now(),
         ]);
 
-        $this->notifier->notifyReactivated($log, $customer);
+        $this->notifier->notifyReactivated($log, $pelanggan);
 
         return $log;
     }
@@ -254,17 +254,17 @@ class CustomerSuspender
     }
 
     private function skip(
-        Customer $customer,
+        Pelanggan $pelanggan,
         SuspendAction $action,
         SuspensionSource $source,
         string $reason,
-        ?Invoice $invoice,
+        ?Tagihan $tagihan,
         ?User $actor,
     ): SuspendLog {
         return SuspendLog::query()->create([
-            'tenant_id' => $customer->tenant_id,
-            'customer_id' => $customer->getKey(),
-            'invoice_id' => $invoice?->getKey(),
+            'tenant_id' => $pelanggan->tenant_id,
+            'pelanggan_id' => $pelanggan->getKey(),
+            'tagihan_id' => $tagihan?->getKey(),
             'performed_by_id' => $actor?->getKey(),
             'action' => $action,
             'source' => $source,
@@ -275,21 +275,21 @@ class CustomerSuspender
     }
 
     private function fail(
-        Customer $customer,
+        Pelanggan $pelanggan,
         SuspendAction $action,
         SuspensionSource $source,
         RouterSuspendMethod $method,
         ?string $reason,
         string $error,
         Router $router,
-        ?Invoice $invoice,
+        ?Tagihan $tagihan,
         ?User $actor,
     ): SuspendLog {
         return DB::transaction(fn (): SuspendLog => SuspendLog::query()->create([
-            'tenant_id' => $customer->tenant_id,
-            'customer_id' => $customer->getKey(),
+            'tenant_id' => $pelanggan->tenant_id,
+            'pelanggan_id' => $pelanggan->getKey(),
             'router_id' => $router->getKey(),
-            'invoice_id' => $invoice?->getKey(),
+            'tagihan_id' => $tagihan?->getKey(),
             'performed_by_id' => $actor?->getKey(),
             'action' => $action,
             'source' => $source,

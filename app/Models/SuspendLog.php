@@ -26,9 +26,9 @@ class SuspendLog extends Model
 
     protected $fillable = [
         'tenant_id',
-        'customer_id',
+        'pelanggan_id',
         'router_id',
-        'invoice_id',
+        'tagihan_id',
         'performed_by_id',
         'action',
         'source',
@@ -52,9 +52,9 @@ class SuspendLog extends Model
         ];
     }
 
-    public function customer(): BelongsTo
+    public function pelanggan(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Pelanggan::class);
     }
 
     public function router(): BelongsTo
@@ -62,9 +62,9 @@ class SuspendLog extends Model
         return $this->belongsTo(Router::class);
     }
 
-    public function invoice(): BelongsTo
+    public function tagihan(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsTo(Tagihan::class);
     }
 
     public function performedBy(): BelongsTo

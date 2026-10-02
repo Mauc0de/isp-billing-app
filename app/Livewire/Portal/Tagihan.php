@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Portal;
 
-use App\Models\Invoice;
+use App\Models\Tagihan as TagihanModel;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -10,17 +10,17 @@ class Tagihan extends Component
 {
     use WithPagination;
 
-    public $customer;
+    public $pelanggan;
 
     public function mount()
     {
-        $this->customer = auth()->user()->customer ?? null;
+        $this->pelanggan = auth()->user()?->pelanggan ?? null;
     }
 
     public function render()
     {
-        $tagihans = Invoice::with('customer')
-            ->where('customer_id', $this->customer?->id)
+        $tagihans = TagihanModel::with('pelanggan')
+            ->where('pelanggan_id', $this->pelanggan?->id)
             ->latest()
             ->paginate(10);
 

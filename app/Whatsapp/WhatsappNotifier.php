@@ -4,9 +4,9 @@ namespace App\Whatsapp;
 
 use App\Enums\WhatsappStatus;
 use App\Jobs\SendWhatsappNotification;
-use App\Models\Customer;
-use App\Models\Invoice;
+use App\Models\Pelanggan;
 use App\Models\SuspendLog;
+use App\Models\Tagihan;
 use App\Models\WhatsappNotification;
 use App\Settings\TenantSettings;
 use Illuminate\Support\Facades\Log;
@@ -22,90 +22,90 @@ class WhatsappNotifier
 {
     public function __construct(private readonly TenantSettings $settings) {}
 
-    public function notifySuspended(SuspendLog $log, Customer $customer, ?Invoice $invoice = null): void
+    public function notifySuspended(SuspendLog $log, Pelanggan $pelanggan, ?Tagihan $tagihan = null): void
     {
         $this->dispatch(
-            customer: $customer,
-            invoice: $invoice,
+            pelanggan: $pelanggan,
+            tagihan: $tagihan,
             suspendLog: $log,
             template: $this->settings->template('suspend'),
         );
     }
 
-    public function notifyReactivated(SuspendLog $log, Customer $customer): void
+    public function notifyReactivated(SuspendLog $log, Pelanggan $pelanggan): void
     {
         $this->dispatch(
-            customer: $customer,
-            invoice: null,
+            pelanggan: $pelanggan,
+            tagihan: null,
             suspendLog: $log,
             template: $this->settings->template('reactivate'),
         );
     }
 
-    public function notifyDueReminder(Customer $customer, Invoice $invoice): void
+    public function notifyDueReminder(Pelanggan $pelanggan, Tagihan $tagihan): void
     {
         $this->dispatch(
-            customer: $customer,
-            invoice: $invoice,
+            pelanggan: $pelanggan,
+            tagihan: $tagihan,
             suspendLog: null,
             template: $this->settings->template('due_reminder'),
         );
     }
 
     private function dispatch(
-        Customer $customer,
-        ?Invoice $invoice,
+        Pelanggan $pelanggan,
+        ?Tagihan $tagihan,
         ?SuspendLog $suspendLog,
         string $template,
     ): void {
-        $to = $customer->whatsappTarget();
+        $to = $pelanggan->whatsappTarget();
 
         if ($to === null) {
             Log::info('Notifikasi WhatsApp dilewati karena pelanggan tidak punya nomor WhatsApp.', [
-                'customer_id' => $customer->getKey(),
+                'pelanggan_id' => $pelanggan->getKey(),
             ]);
 
             return;
         }
 
         $notification = WhatsappNotification::query()->create([
-            'tenant_id' => $customer->tenant_id,
-            'customer_id' => $customer->getKey(),
-            'invoice_id' => $invoice?->getKey(),
+            'tenant_id' => $pelanggan->tenant_id,
+            'pelanggan_id' => $pelanggan->getKey(),
+            'tagihan_id' => $tagihan?->getKey(),
             'suspend_log_id' => $suspendLog?->getKey(),
             'to_number' => $to,
-            'message' => $this->render($template, $customer, $invoice),
+            'message' => $this->render($template, $pelanggan, $tagihan),
             'status' => WhatsappStatus::Queued,
         ]);
 
-        SendWhatsappNotification::dispatch((string) $customer->tenant_id, $notification->getKey());
+        SendWhatsappNotification::dispatch((string) $pelanggan->tenant_id, $notification->getKey());
     }
 
-    private function render(string $template, Customer $customer, ?Invoice $invoice): string
+    private function render(string $template, Pelanggan $pelanggan, ?Tagihan $tagihan): string
     {
         $placeholders = [
-            '{customer}' => (string) $customer->name,
-            '{customer_number}' => (string) $customer->customer_number,
-            '{tenant}' => (string) $customer->tenant?->name,
-            '{package}' => (string) ($customer->package?->name ?? $invoice?->package_name ?? '-'),
-            '{router}' => (string) ($customer->router?->name ?? '-'),
-            '{invoice_number}' => (string) ($invoice?->invoice_number ?? '-'),
-            '{amount}' => $invoice === null ? '-' : $this->rupiah((float) $invoice->total),
-            '{due_date}' => $invoice?->due_date?->format('d/m/Y') ?? '-',
-            '{overdue_days}' => $this->overdueDays($invoice),
-            '{reason}' => (string) ($customer->status_reason ?? '-'),
+            '{customer}' => (string) $pelanggan->nama,
+            '{customer_number}' => (string) $pelanggan->customer_number,
+            '{tenant}' => (string) $pelanggan->tenant?->name,
+            '{package}' => (string) ($pelanggan->paket?->nama_paket ?? '-'),
+            '{router}' => (string) ($pelanggan->router?->name ?? '-'),
+            '{invoice_number}' => (string) ($tagihan?->nomor_tagihan ?? '-'),
+            '{amount}' => $tagihan === null ? '-' : $this->rupiah((float) $tagihan->jumlah),
+            '{due_date}' => $tagihan?->jatuh_tempo?->format('d/m/Y') ?? '-',
+            '{overdue_days}' => $this->overdueDays($tagihan),
+            '{reason}' => (string) ($pelanggan->status_reason ?? '-'),
         ];
 
         return strtr($template, $placeholders);
     }
 
-    private function overdueDays(?Invoice $invoice): string
+    private function overdueDays(?Tagihan $tagihan): string
     {
-        if ($invoice?->due_date === null) {
+        if ($tagihan?->jatuh_tempo === null) {
             return '-';
         }
 
-        $days = $invoice->due_date->diffInDays(now()->startOfDay(), false);
+        $days = $tagihan->jatuh_tempo->diffInDays(now()->startOfDay(), false);
 
         return (string) max(0, $days);
     }

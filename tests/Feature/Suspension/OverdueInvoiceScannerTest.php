@@ -4,7 +4,7 @@ namespace Tests\Feature\Suspension;
 
 use App\Enums\CustomerStatus;
 use App\Enums\InvoiceStatus;
-use App\Models\Customer;
+use App\Models\Pelanggan;
 use App\Models\Tenant;
 use App\Settings\TenantSettings;
 use App\Suspension\OverdueInvoiceScanner;
@@ -84,7 +84,7 @@ class OverdueInvoiceScannerTest extends TestCase
 
             $this->makeInvoice($customer, [
                 'invoice_number' => 'LUNAS',
-                'status' => InvoiceStatus::Paid,
+                'status' => InvoiceStatus::Lunas,
                 'due_date' => now()->subDays(30)->toDateString(),
             ]);
         });
@@ -101,7 +101,7 @@ class OverdueInvoiceScannerTest extends TestCase
     {
         $this->inTenant($this->tenant, function (): void {
             $customer = $this->makeCustomer($this->tenant, [
-                'status' => CustomerStatus::Suspended,
+                'status' => CustomerStatus::Ditangguhkan,
             ]);
 
             $this->makeInvoice($customer, [
@@ -190,8 +190,8 @@ class OverdueInvoiceScannerTest extends TestCase
 
         // Simulasikan pengingat yang sudah dikirim hari ini.
         $this->inTenant($this->tenant, function (): void {
-            $customer = Customer::query()->firstOrFail();
-            $invoice = $customer->invoices()->firstOrFail();
+            $customer = Pelanggan::query()->firstOrFail();
+            $invoice = $customer->tagihan()->firstOrFail();
 
             $invoice->whatsappNotifications()->create([
                 'to_number' => '6281234567890',

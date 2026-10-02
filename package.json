@@ -3,8 +3,13 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "predev": "node -e \"require('fs').rmSync('public/hot',{force:true})\"",
+        "dev": "concurrently -k -n VITE,PHP -c cyan,magenta \"vite\" \"php artisan serve --port=8000\"",
+        "prebuild": "node -e \"require('fs').rmSync('public/hot',{force:true})\"",
         "build": "vite build",
-        "dev": "vite"
+        "watch": "vite build --watch",
+        "serve": "php artisan serve --port=8000",
+        "vite": "vite"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.3",

@@ -4,7 +4,7 @@ namespace App\Suspension;
 
 use App\Enums\CustomerStatus;
 use App\Enums\InvoiceStatus;
-use App\Models\Invoice;
+use App\Models\Tagihan;
 use App\Settings\TenantSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -30,16 +30,16 @@ class OverdueInvoiceScanner
     {
         $threshold = Carbon::today()->subDays($this->settings->gracePeriodDays());
 
-        return Invoice::query()
-            ->select('customer_id')
+        return Tagihan::query()
+            ->select('pelanggan_id')
             ->whereIn('status', $this->outstandingStatuses())
-            ->whereDate('due_date', '<=', $threshold)
-            ->whereHas('customer', fn (Builder $query): Builder => $query
-                ->where('status', CustomerStatus::Active->value),
+            ->whereDate('jatuh_tempo', '<=', $threshold)
+            ->whereHas('pelanggan', fn (Builder $query): Builder => $query
+                ->where('status', CustomerStatus::Aktif->value),
             )
             ->distinct()
-            ->orderBy('customer_id')
-            ->pluck('customer_id')
+            ->orderBy('pelanggan_id')
+            ->pluck('pelanggan_id')
             ->all();
     }
 
@@ -54,18 +54,18 @@ class OverdueInvoiceScanner
         $days = $this->settings->reminderDaysBefore();
         $today = Carbon::today();
 
-        return Invoice::query()
+        return Tagihan::query()
             ->select('id')
-            ->whereIn('status', [InvoiceStatus::Unpaid->value, InvoiceStatus::Partial->value])
-            ->whereDate('due_date', '>=', $today)
-            ->whereDate('due_date', '<=', $today->copy()->addDays($days))
-            ->whereHas('customer', fn (Builder $query): Builder => $query
-                ->where('status', CustomerStatus::Active->value),
+            ->whereIn('status', [InvoiceStatus::BelumBayar->value, InvoiceStatus::Sebagian->value])
+            ->whereDate('jatuh_tempo', '>=', $today)
+            ->whereDate('jatuh_tempo', '<=', $today->copy()->addDays($days))
+            ->whereHas('pelanggan', fn (Builder $query): Builder => $query
+                ->where('status', CustomerStatus::Aktif->value),
             )
             ->whereDoesntHave('whatsappNotifications', fn (Builder $query): Builder => $query
                 ->whereDate('created_at', $today),
             )
-            ->orderBy('due_date')
+            ->orderBy('jatuh_tempo')
             ->pluck('id')
             ->all();
     }

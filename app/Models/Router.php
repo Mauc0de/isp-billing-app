@@ -59,9 +59,9 @@ class Router extends Model
         return $this->address_list_name ?: 'satak-blocklist';
     }
 
-    public function customers(): HasMany
+    public function pelanggans(): HasMany
     {
-        return $this->hasMany(Customer::class);
+        return $this->hasMany(Pelanggan::class);
     }
 
     public function suspendLogs(): HasMany

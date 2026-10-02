@@ -11,27 +11,30 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Customer extends Model
+class Pelanggan extends Model
 {
     use BelongsToTenant;
     use HasFactory, HasUlids;
 
+    protected $table = 'pelanggans';
+
     protected $fillable = [
         'tenant_id',
-        'package_id',
-        'router_id',
-        'mikrotik_username',
-        'suspended_by_id',
         'customer_number',
-        'name',
-        'phone',
+        'nama',
+        'telepon',
         'whatsapp_number',
         'email',
-        'address',
+        'alamat',
+        'paket_id',
+        'router_id',
+        'mikrotik_username',
         'status',
         'suspension_source',
         'status_reason',
         'suspended_at',
+        'suspended_by_id',
+        'tanggal_aktif',
         'joined_at',
         'archived_at',
     ];
@@ -42,19 +45,35 @@ class Customer extends Model
             'status' => CustomerStatus::class,
             'suspension_source' => SuspensionSource::class,
             'suspended_at' => 'datetime',
+            'tanggal_aktif' => 'date',
             'joined_at' => 'date',
             'archived_at' => 'datetime',
         ];
     }
 
-    public function package(): BelongsTo
+    public function paket(): BelongsTo
     {
-        return $this->belongsTo(Package::class);
+        return $this->belongsTo(Paket::class);
     }
 
     public function router(): BelongsTo
     {
         return $this->belongsTo(Router::class);
+    }
+
+    public function suspendedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'suspended_by_id');
+    }
+
+    public function tagihan(): HasMany
+    {
+        return $this->hasMany(Tagihan::class);
+    }
+
+    public function pembayaran(): HasMany
+    {
+        return $this->hasMany(Pembayaran::class);
     }
 
     public function suspendLogs(): HasMany
@@ -73,7 +92,7 @@ class Customer extends Model
      */
     public function whatsappTarget(): ?string
     {
-        return static::normalizePhoneNumber($this->whatsapp_number ?? $this->phone);
+        return static::normalizePhoneNumber($this->whatsapp_number ?? $this->telepon);
     }
 
     public static function normalizePhoneNumber(?string $number): ?string
@@ -94,20 +113,5 @@ class Customer extends Model
         }
 
         return $digits === '' ? null : $digits;
-    }
-
-    public function suspendedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'suspended_by_id');
-    }
-
-    public function invoices(): HasMany
-    {
-        return $this->hasMany(Invoice::class);
-    }
-
-    public function payments(): HasMany
-    {
-        return $this->hasMany(Payment::class);
     }
 }

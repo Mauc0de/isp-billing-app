@@ -76,8 +76,8 @@ class User extends Authenticatable
             ->exists();
     }
 
-    public function customer(): HasOne
+    public function pelanggan(): HasOne
     {
-        return $this->hasOne(Customer::class);
+        return $this->hasOne(Pelanggan::class);
     }
 }

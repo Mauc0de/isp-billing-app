@@ -61,12 +61,12 @@ class AutomationCommandsTest extends TestCase
 
             $this->makeInvoice($overdue, [
                 'invoice_number' => 'INV-OVERDUE',
-                'status' => InvoiceStatus::Unpaid,
+                'status' => InvoiceStatus::BelumBayar,
                 'due_date' => now()->subDays(30)->toDateString(),
             ]);
             $this->makeInvoice($dueSoon, [
                 'invoice_number' => 'INV-DUE-SOON',
-                'status' => InvoiceStatus::Unpaid,
+                'status' => InvoiceStatus::BelumBayar,
                 'due_date' => now()->addDay()->toDateString(),
             ]);
         });
@@ -149,7 +149,7 @@ class AutomationCommandsTest extends TestCase
 
             $this->makeInvoice($customer, [
                 'invoice_number' => 'INV-OVERDUE',
-                'status' => InvoiceStatus::Unpaid,
+                'status' => InvoiceStatus::BelumBayar,
                 'due_date' => now()->subDays(30)->toDateString(),
             ]);
         });

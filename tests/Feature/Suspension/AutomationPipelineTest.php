@@ -12,9 +12,9 @@ use App\Jobs\ScanOverdueInvoices;
 use App\Jobs\SendWhatsappNotification;
 use App\Jobs\SuspendCustomer;
 use App\Mikrotik\RouterClientFactory;
-use App\Models\Customer;
-use App\Models\Invoice;
+use App\Models\Pelanggan;
 use App\Models\SuspendLog;
+use App\Models\Tagihan;
 use App\Models\Tenant;
 use App\Models\WhatsappNotification;
 use App\Suspension\CustomerSuspender;
@@ -60,7 +60,7 @@ class AutomationPipelineTest extends TestCase
 
     public function test_overdue_invoice_suspends_the_customer_and_queues_a_notification(): void
     {
-        $customer = $this->inTenant($this->tenant, function (): Customer {
+        $customer = $this->inTenant($this->tenant, function (): Pelanggan {
             $customer = $this->makeSuspendableCustomer($this->tenant, [
                 'name' => 'Siti Aminah',
                 'whatsapp_number' => '081298765432',
@@ -68,7 +68,7 @@ class AutomationPipelineTest extends TestCase
 
             $this->makeInvoice($customer, [
                 'invoice_number' => 'INV-OVERDUE-1',
-                'status' => InvoiceStatus::Unpaid,
+                'status' => InvoiceStatus::BelumBayar,
                 'due_date' => now()->subDays(20)->toDateString(),
                 'total' => 275000,
             ]);
@@ -93,7 +93,7 @@ class AutomationPipelineTest extends TestCase
         $this->inTenant($this->tenant, function () use ($customer): void {
             $customer->refresh();
 
-            $this->assertSame(CustomerStatus::Suspended, $customer->status);
+            $this->assertSame(CustomerStatus::Ditangguhkan, $customer->status);
 
             $log = SuspendLog::query()->sole();
             $this->assertSame(SuspendLogStatus::Succeeded, $log->status);
@@ -141,8 +141,8 @@ class AutomationPipelineTest extends TestCase
 
         // Jalankan lagi di hari berikutnya dengan status yang sudah berubah.
         $this->inTenant($this->tenant, function (): void {
-            Customer::query()->sole()->forceFill([
-                'status' => CustomerStatus::Suspended,
+            Pelanggan::query()->sole()->forceFill([
+                'status' => CustomerStatus::Ditangguhkan,
             ])->save();
         });
 
@@ -162,9 +162,9 @@ class AutomationPipelineTest extends TestCase
             ]);
 
             app(CustomerSuspender::class)->suspend(
-                customer: $customer,
+                pelanggan: $customer,
                 source: SuspensionSource::Overdue,
-                invoice: $invoice,
+                tagihan: $invoice,
             );
         });
 
@@ -172,13 +172,13 @@ class AutomationPipelineTest extends TestCase
             $log = SuspendLog::query()->sole();
 
             // Audit harus bisa ditelusuri balik ke tagihan asalnya.
-            $invoice = Invoice::query()->sole();
-            $this->assertSame($invoice->getKey(), $log->invoice_id);
-            $this->assertSame('INV-AUDIT', $invoice->invoice_number);
+            $invoice = Tagihan::query()->sole();
+            $this->assertSame($invoice->getKey(), $log->tagihan_id);
+            $this->assertSame('INV-AUDIT', $invoice->nomor_tagihan);
 
-            $customer = Customer::query()->sole();
+            $customer = Pelanggan::query()->sole();
             $this->assertCount(1, $customer->suspendLogs);
-            $this->assertCount(1, $customer->invoices);
+            $this->assertCount(1, $customer->tagihan);
         });
     }
 

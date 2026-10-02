@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
             'tenant' => ResolveTenant::class,
             'role' => EnsureRole::class,
             'permission' => EnsurePermission::class,

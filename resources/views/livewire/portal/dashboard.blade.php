@@ -54,11 +54,11 @@
             <div class="flex items-center gap-5">
                 <div class="flex items-center gap-3 pl-5 border-l border-slate-200">
                     <div class="text-right hidden sm:block">
-                        <p class="text-[13px] font-bold text-slate-900 leading-tight">{{ $customer?->name ?? 'Pelanggan' }}</p>
+                        <p class="text-[13px] font-bold text-slate-900 leading-tight">{{ $pelanggan?->nama ?? 'Pelanggan' }}</p>
                         <p class="text-[11px] text-slate-400">Pelanggan</p>
                     </div>
                     <div class="w-9 h-9 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-sm">
-                        {{ strtoupper(substr($customer?->name ?? 'P', 0, 1)) }}
+                        {{ strtoupper(substr($pelanggan?->nama ?? 'P', 0, 1)) }}
                     </div>
                 </div>
             </div>
@@ -83,10 +83,10 @@
                     <!-- Card 1: Paket Aktif -->
                     <div class="bg-white rounded-2xl border border-slate-200/70 p-5 shadow-sm">
                         <p class="text-xs font-medium text-slate-400">Paket Aktif</p>
-                        <p class="text-[26px] font-extrabold text-slate-900 tracking-tight mt-1.5">{{ $package?->speed ?? '-' }}</p>
+                        <p class="text-[26px] font-extrabold text-slate-900 tracking-tight mt-1.5">{{ $paket?->kecepatan ?? '-' }}</p>
                         <p class="text-[11px] font-semibold text-emerald-600 mt-2 flex items-center gap-1">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"></path></svg>
-                            {{ $package?->name ?? 'Tidak ada paket' }}
+                            {{ $paket?->nama_paket ?? 'Tidak ada paket' }}
                         </p>
                     </div>
 
@@ -94,7 +94,7 @@
                     <div class="bg-white rounded-2xl border border-slate-200/70 p-5 shadow-sm">
                         <p class="text-xs font-medium text-slate-400">Tagihan Bulan Ini</p>
                         <p class="text-[26px] font-extrabold text-slate-900 tracking-tight mt-1.5">
-                            Rp {{ number_format($tagihanBelumBayar * ($package?->price ?? 0), 0, ',', '.') }}
+                            Rp {{ number_format($tagihanBelumBayar * ($paket?->harga ?? 0), 0, ',', '.') }}
                         </p>
                         <p class="text-[11px] font-semibold text-slate-400 mt-2 flex items-center gap-1">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -148,10 +148,10 @@
                                     @forelse($transaksiTerbaru as $transaksi)
                                         <tr class="border-b border-slate-50 hover:bg-slate-50/60 transition">
                                             <td class="px-6 py-4 font-semibold text-[13px] text-slate-900">
-                                                {{ $transaksi->invoice?->invoice_number ?? '-' }}
+                                                {{ $transaksi->tagihan?->nomor_tagihan ?? '-' }}
                                             </td>
-                                            <td class="px-6 py-4 text-[13px] text-slate-500">{{ $transaksi->method }}</td>
-                                            <td class="px-6 py-4 text-[13px] font-bold text-slate-900 font-mono">Rp {{ number_format($transaksi->amount, 0, ',', '.') }}</td>
+                                            <td class="px-6 py-4 text-[13px] text-slate-500">{{ $transaksi->metode_pembayaran }}</td>
+                                            <td class="px-6 py-4 text-[13px] font-bold text-slate-900 font-mono">Rp {{ number_format($transaksi->jumlah, 0, ',', '.') }}</td>
                                             <td class="px-6 py-4">
                                                 @if($transaksi->status === 'berhasil')
                                                     <span class="bg-[#F0FDF4] text-[#059669] flex items-center w-fit gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border border-[#D1FAE5]">
@@ -193,7 +193,7 @@
                             <div>
                                 <div class="flex justify-between items-center text-xs mb-2">
                                     <span class="font-semibold text-slate-600">Download</span>
-                                    <span class="font-bold text-slate-900">{{ $package?->speed ?? '-' }}</span>
+                                    <span class="font-bold text-slate-900">{{ $paket?->kecepatan ?? '-' }}</span>
                                 </div>
                                 <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                                     <div class="bg-[#2563EB] h-full rounded-full" style="width: 100%"></div>
@@ -204,29 +204,29 @@
                             <div>
                                 <div class="flex justify-between items-center text-xs mb-2">
                                     <span class="font-semibold text-slate-600">Status</span>
-                                    <span class="font-bold text-slate-900">{{ $customer?->status?->value ?? 'aktif' }}</span>
+                                    <span class="font-bold text-slate-900">{{ $pelanggan?->status?->value ?? 'aktif' }}</span>
                                 </div>
                                 <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                    <div class="bg-[#10B981] h-full rounded-full" style="width: {{ $customer?->status?->value === 'aktif' ? '100' : '0' }}%"></div>
+                                    <div class="bg-[#10B981] h-full rounded-full" style="width: {{ $pelanggan?->status?->value === 'aktif' ? '100' : '0' }}%"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Indikator Status -->
-                        <div class="mt-6 {{ $customer?->status?->value === 'aktif' ? 'bg-[#F0FDF4] border-[#D1FAE5]' : 'bg-[#FEF2F2] border-[#FECACA]' }} border rounded-xl px-4 py-3 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full {{ $customer?->status?->value === 'aktif' ? 'bg-[#10B981]' : 'bg-[#EF4444]' }} flex items-center justify-center shrink-0">
-                                @if($customer?->status?->value === 'aktif')
+                        <div class="mt-6 {{ $pelanggan?->status?->value === 'aktif' ? 'bg-[#F0FDF4] border-[#D1FAE5]' : 'bg-[#FEF2F2] border-[#FECACA]' }} border rounded-xl px-4 py-3 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full {{ $pelanggan?->status?->value === 'aktif' ? 'bg-[#10B981]' : 'bg-[#EF4444]' }} flex items-center justify-center shrink-0">
+                                @if($pelanggan?->status?->value === 'aktif')
                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                 @else
                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 @endif
                             </div>
                             <div>
-                                <p class="text-xs font-bold {{ $customer?->status?->value === 'aktif' ? 'text-[#047857]' : 'text-[#B91C1C]' }}">
-                                    {{ $customer?->status?->value === 'aktif' ? 'Layanan Aktif' : 'Layanan Nonaktif' }}
+                                <p class="text-xs font-bold {{ $pelanggan?->status?->value === 'aktif' ? 'text-[#047857]' : 'text-[#B91C1C]' }}">
+                                    {{ $pelanggan?->status?->value === 'aktif' ? 'Layanan Aktif' : 'Layanan Nonaktif' }}
                                 </p>
-                                <p class="text-[11px] {{ $customer?->status?->value === 'aktif' ? 'text-[#059669]' : 'text-[#DC2626]' }}">
-                                    {{ $customer?->status?->value === 'aktif' ? 'Koneksi berjalan normal' : 'Layanan sedang tidak aktif' }}
+                                <p class="text-[11px] {{ $pelanggan?->status?->value === 'aktif' ? 'text-[#059669]' : 'text-[#DC2626]' }}">
+                                    {{ $pelanggan?->status?->value === 'aktif' ? 'Koneksi berjalan normal' : 'Layanan sedang tidak aktif' }}
                                 </p>
                             </div>
                         </div>

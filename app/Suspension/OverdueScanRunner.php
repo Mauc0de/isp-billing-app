@@ -3,8 +3,8 @@
 namespace App\Suspension;
 
 use App\Jobs\SuspendCustomer;
-use App\Models\Customer;
-use App\Models\Invoice;
+use App\Models\Pelanggan;
+use App\Models\Tagihan;
 use App\Tenancy\TenantRunner;
 use App\Whatsapp\WhatsappNotifier;
 
@@ -15,7 +15,7 @@ use App\Whatsapp\WhatsappNotifier;
  * tetap tipis (cuma meneruskan), dan command isp:scan-overdue bisa menampilkan
  * jumlah hasil yang sebenarnya, bukan menebak dari flag.
  *
- * Kelas ini tidak pernah mengubah status pelanggan atau invoice — hanya
+ * Kelas ini tidak pernah mengubah status pelanggan atau tagihan — hanya
  * meneruskan ke CustomerSuspender lewat job.
  */
 class OverdueScanRunner
@@ -49,7 +49,7 @@ class OverdueScanRunner
         $queued = 0;
 
         foreach ($this->scanner->findSuspendableCustomerIds() as $customerId) {
-            $customer = Customer::query()->find($customerId);
+            $customer = Pelanggan::query()->find($customerId);
 
             if ($customer === null) {
                 continue;
@@ -63,10 +63,10 @@ class OverdueScanRunner
                 invoiceId: $invoice?->getKey(),
                 reason: $invoice === null ? null : sprintf(
                     'Tagihan %s sebesar Rp %s lewat jatuh tempo %s (%d hari).',
-                    $invoice->invoice_number,
-                    number_format((float) $invoice->total, 0, ',', '.'),
-                    $invoice->due_date->format('d/m/Y'),
-                    max(0, (int) $invoice->due_date->diffInDays(now()->startOfDay(), false)),
+                    $invoice->nomor_tagihan,
+                    number_format((float) $invoice->jumlah, 0, ',', '.'),
+                    $invoice->jatuh_tempo->format('d/m/Y'),
+                    max(0, (int) $invoice->jatuh_tempo->diffInDays(now()->startOfDay(), false)),
                 ),
             );
 
@@ -84,13 +84,13 @@ class OverdueScanRunner
         $queued = 0;
 
         foreach ($this->scanner->findDueReminderInvoiceIds() as $invoiceId) {
-            $invoice = Invoice::query()->with('customer')->find($invoiceId);
+            $invoice = Tagihan::query()->with('pelanggan')->find($invoiceId);
 
-            if ($invoice?->customer === null) {
+            if ($invoice?->pelanggan === null) {
                 continue;
             }
 
-            $this->notifier->notifyDueReminder($invoice->customer, $invoice);
+            $this->notifier->notifyDueReminder($invoice->pelanggan, $invoice);
 
             $queued++;
         }
@@ -98,11 +98,11 @@ class OverdueScanRunner
         return $queued;
     }
 
-    private function oldestOutstandingInvoice(Customer $customer): ?Invoice
+    private function oldestOutstandingInvoice(Pelanggan $pelanggan): ?Tagihan
     {
-        return $customer->invoices()
+        return $pelanggan->tagihan()
             ->whereIn('status', ['belum_bayar', 'sebagian', 'terlambat'])
-            ->orderBy('due_date')
+            ->orderBy('jatuh_tempo')
             ->first();
     }
 }

@@ -23,8 +23,8 @@ class WhatsappNotification extends Model
 
     protected $fillable = [
         'tenant_id',
-        'customer_id',
-        'invoice_id',
+        'pelanggan_id',
+        'tagihan_id',
         'suspend_log_id',
         'to_number',
         'message',
@@ -46,14 +46,14 @@ class WhatsappNotification extends Model
         ];
     }
 
-    public function customer(): BelongsTo
+    public function pelanggan(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Pelanggan::class);
     }
 
-    public function invoice(): BelongsTo
+    public function tagihan(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsTo(Tagihan::class);
     }
 
     public function suspendLog(): BelongsTo

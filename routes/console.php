@@ -22,7 +22,7 @@ Artisan::command('inspire', function () {
 | withoutOverlapping dipakai karena pemindaian melibatkan panggilan ke router
 | yang bisa memakan waktu; job yang masih jalan akan dilewati pada tick berikutnya.
 |
-| Schedule::job() otomatis mendispatch ke queue karena kedua job mengimplementasikan
+| Schedule::job() otomatis mendispatch ke queue karena job ini mengimplementasikan
 | ShouldQueue, jadi schedule worker hanya perlu singkat untuk mengembalikan respons
 | dan pekerjaan beratnya dikerjakan worker. Nama queue-nya ('automation') ditetapkan
 | di dalam kelas job, sehingga berlaku juga saat job dipanggil manual.

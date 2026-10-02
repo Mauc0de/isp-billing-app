@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Enums\SuspensionSource;
-use App\Models\Customer;
-use App\Models\Invoice;
+use App\Models\Pelanggan;
+use App\Models\Tagihan;
 use App\Suspension\CustomerSuspender;
 
 /**
@@ -28,18 +28,18 @@ class SuspendCustomer extends TenantJob
 
     protected function handleInTenant(): void
     {
-        $customer = Customer::query()->find($this->customerId);
+        $pelanggan = Pelanggan::query()->find($this->customerId);
 
-        if ($customer === null) {
+        if ($pelanggan === null) {
             return;
         }
 
         $this->resolve(CustomerSuspender::class)->suspend(
-            customer: $customer,
+            pelanggan: $pelanggan,
             source: SuspensionSource::Overdue,
-            invoice: $this->invoiceId === null
+            tagihan: $this->invoiceId === null
                 ? null
-                : Invoice::query()->find($this->invoiceId),
+                : Tagihan::query()->find($this->invoiceId),
             reason: $this->reason,
         );
     }

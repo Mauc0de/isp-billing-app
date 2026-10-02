@@ -2,34 +2,37 @@
 
 namespace App\Livewire\Portal;
 
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Customer;
+use App\Models\Pembayaran;
+use App\Models\Tagihan;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
-    public $customer;
-    public $package;
+    public $pelanggan;
+
+    public $paket;
+
     public $tagihanBelumBayar;
+
     public $totalPembayaran;
+
     public $transaksiTerbaru;
 
     public function mount()
     {
-        // Ambil customer dari user yang sedang login
-        $this->customer = auth()->user()->customer ?? null;
+        // Ambil pelanggan dari user yang sedang login.
+        $this->pelanggan = auth()->user()?->pelanggan ?? null;
 
-        if ($this->customer) {
-            $this->package = $this->customer->package;
-            $this->tagihanBelumBayar = Invoice::where('customer_id', $this->customer->id)
+        if ($this->pelanggan) {
+            $this->paket = $this->pelanggan->paket;
+            $this->tagihanBelumBayar = Tagihan::where('pelanggan_id', $this->pelanggan->id)
                 ->where('status', 'belum_bayar')
                 ->count();
-            $this->totalPembayaran = Payment::where('customer_id', $this->customer->id)
+            $this->totalPembayaran = Pembayaran::where('pelanggan_id', $this->pelanggan->id)
                 ->where('status', 'berhasil')
-                ->sum('amount');
-            $this->transaksiTerbaru = Payment::with('invoice')
-                ->where('customer_id', $this->customer->id)
+                ->sum('jumlah');
+            $this->transaksiTerbaru = Pembayaran::with('tagihan')
+                ->where('pelanggan_id', $this->pelanggan->id)
                 ->latest()
                 ->take(5)
                 ->get();
