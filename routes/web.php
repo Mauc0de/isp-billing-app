@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
 use App\Livewire\Portal\Dashboard;
 use App\Livewire\Portal\Paket;
 use App\Livewire\Portal\Pembayaran;
@@ -99,6 +100,33 @@ Route::middleware(['auth', 'tenant'])->group(function (): void {
     Route::get('/pengaturan', [BillingController::class, 'pengaturan'])
         ->middleware('permission:settings.view')
         ->name('pengaturan.index');
+
+    /*
+    | Manajemen Pengguna
+    |------------------
+    | Halaman ini dipakai untuk menambah staf, mengubah role, mengaktifkan /
+    | menonaktifkan akun (termasuk menyetujui pendaftaran pelanggan), dan
+    | mereset password. Dijaga oleh permission users.*.
+    */
+    Route::get('/pengguna', [UserController::class, 'index'])
+        ->middleware('permission:users.view')
+        ->name('users.index');
+
+    Route::post('/pengguna', [UserController::class, 'store'])
+        ->middleware('permission:users.create')
+        ->name('users.store');
+
+    Route::patch('/pengguna/{user}/role', [UserController::class, 'updateRole'])
+        ->middleware('permission:users.update')
+        ->name('users.role');
+
+    Route::patch('/pengguna/{user}/status', [UserController::class, 'toggleActive'])
+        ->middleware('permission:users.update')
+        ->name('users.status');
+
+    Route::patch('/pengguna/{user}/password', [UserController::class, 'resetPassword'])
+        ->middleware('permission:users.update')
+        ->name('users.password');
 });
 
 /*

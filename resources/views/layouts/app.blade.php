@@ -35,6 +35,9 @@
             <a href="/paket" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->is('paket*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md font-semibold' : 'text-slate-600 hover:bg-slate-50' }}"><span>📦</span> Paket Internet</a>
             <a href="/laporan" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->is('laporan*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md font-semibold' : 'text-slate-600 hover:bg-slate-50' }}"><span>📈</span> Laporan</a>
             <a href="/pengaturan" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->is('pengaturan*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md font-semibold' : 'text-slate-600 hover:bg-slate-50' }}"><span>⚙️</span> Pengaturan</a>
+            @can('users.view')
+            <a href="/pengguna" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->is('pengguna*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md font-semibold' : 'text-slate-600 hover:bg-slate-50' }}"><span>🧑‍💼</span> Pengguna</a>
+            @endcan
         </nav>
         <div class="p-4 border-t border-slate-100">
             <form method="POST" action="{{ route('logout') }}">
@@ -62,6 +65,9 @@
                     <a href="/paket" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('paket*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md shadow-blue-500/20 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#0066FF]' }}"><span class="text-base">📦</span> Paket Internet</a>
                     <a href="/laporan" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('laporan*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md shadow-blue-500/20 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#0066FF]' }}"><span class="text-base">📈</span> Laporan</a>
                     <a href="/pengaturan" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('pengaturan*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md shadow-blue-500/20 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#0066FF]' }}"><span class="text-base">⚙️</span> Pengaturan</a>
+                    @can('users.view')
+                    <a href="/pengguna" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('pengguna*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md shadow-blue-500/20 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#0066FF]' }}"><span class="text-base">🧑‍💼</span> Pengguna</a>
+                    @endcan
                 </nav>
             </div>
             <div class="p-4 border-t border-slate-100">
