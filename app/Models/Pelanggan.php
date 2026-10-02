@@ -31,6 +31,8 @@ class Pelanggan extends Model
         'router_id',
         'mikrotik_username',
         'status',
+        'saldo',
+        'auto_renew',
         'suspension_source',
         'status_reason',
         'suspended_at',
@@ -44,6 +46,8 @@ class Pelanggan extends Model
     {
         return [
             'status' => CustomerStatus::class,
+            'saldo' => 'integer',
+            'auto_renew' => 'boolean',
             'suspension_source' => SuspensionSource::class,
             'suspended_at' => 'datetime',
             'tanggal_aktif' => 'date',
@@ -85,6 +89,11 @@ class Pelanggan extends Model
     public function whatsappNotifications(): HasMany
     {
         return $this->hasMany(WhatsappNotification::class);
+    }
+
+    public function saldoMutations(): HasMany
+    {
+        return $this->hasMany(SaldoMutation::class);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Suspension;
 
+use App\Billing\AutoRenew;
 use App\Jobs\SuspendCustomer;
 use App\Models\Pelanggan;
 use App\Models\Tagihan;
@@ -16,7 +17,8 @@ use App\Whatsapp\WhatsappNotifier;
  * jumlah hasil yang sebenarnya, bukan menebak dari flag.
  *
  * Kelas ini tidak pernah mengubah status pelanggan atau tagihan — hanya
- * meneruskan ke CustomerSuspender lewat job.
+ * meneruskan ke CustomerSuspender lewat job. Pengecualian: AutoRenew, yang
+ * melunasi tagihan pelanggan bersaldo sebelum suspend dipertimbangkan.
  */
 class OverdueScanRunner
 {
@@ -24,6 +26,7 @@ class OverdueScanRunner
         private readonly TenantRunner $tenants,
         private readonly OverdueInvoiceScanner $scanner,
         private readonly WhatsappNotifier $notifier,
+        private readonly AutoRenew $autoRenew,
     ) {}
 
     public function run(bool $suspend = true, bool $remind = true): ScanReport
@@ -31,10 +34,15 @@ class OverdueScanRunner
         $report = ScanReport::empty();
 
         $this->tenants->forEachActiveTenant(function () use (&$report, $suspend, $remind): void {
+            // Auto-renew lebih dulu: pelanggan yang punya saldo cukup jangan
+            // sampai ikut masuk antrean suspend.
+            $renewed = $this->autoRenew->runForCurrentTenant();
+
             $report = new ScanReport(
                 tenants: $report->tenants + 1,
                 suspended: $report->suspended + ($suspend ? $this->queueSuspensions() : 0),
                 reminded: $report->reminded + ($remind ? $this->queueReminders() : 0),
+                renewed: $report->renewed + $renewed,
             );
         });
 

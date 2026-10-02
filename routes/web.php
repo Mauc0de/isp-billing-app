@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SaldoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
 use App\Livewire\Portal\Dashboard;
@@ -150,6 +151,32 @@ Route::middleware(['auth', 'tenant'])->group(function (): void {
     Route::delete('/voucher/{voucher}', [VoucherController::class, 'destroy'])
         ->middleware('permission:vouchers.delete')
         ->name('vouchers.destroy');
+
+    /*
+    | Saldo & Auto-renew
+    |-------------------
+    | Saldo pelanggan, riwayat mutasi, top-up manual, dan pelunasan tagihan
+    | dari saldo. Auto-renew otomatis ikut berjalan di pemindaian harian.
+    */
+    Route::get('/saldo', [SaldoController::class, 'index'])
+        ->middleware('permission:saldo.view')
+        ->name('saldo.index');
+
+    Route::get('/saldo/{pelanggan}', [SaldoController::class, 'show'])
+        ->middleware('permission:saldo.view')
+        ->name('saldo.show');
+
+    Route::post('/saldo/{pelanggan}/topup', [SaldoController::class, 'topUp'])
+        ->middleware('permission:saldo.manage')
+        ->name('saldo.topup');
+
+    Route::patch('/saldo/{pelanggan}/auto-renew', [SaldoController::class, 'toggleAutoRenew'])
+        ->middleware('permission:saldo.manage')
+        ->name('saldo.auto-renew');
+
+    Route::post('/saldo/tagihan/{tagihan}/bayar', [SaldoController::class, 'payInvoice'])
+        ->middleware('permission:saldo.manage')
+        ->name('saldo.bayar');
 });
 
 /*

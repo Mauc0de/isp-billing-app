@@ -16,11 +16,12 @@ final readonly class ScanReport
         public int $tenants,
         public int $suspended,
         public int $reminded,
+        public int $renewed = 0,
     ) {}
 
     public static function empty(): self
     {
-        return new self(tenants: 0, suspended: 0, reminded: 0);
+        return new self(tenants: 0, suspended: 0, reminded: 0, renewed: 0);
     }
 
     /**
@@ -31,14 +32,15 @@ final readonly class ScanReport
      */
     public function foundNothing(): bool
     {
-        return $this->suspended === 0 && $this->reminded === 0;
+        return $this->suspended === 0 && $this->reminded === 0 && $this->renewed === 0;
     }
 
     public function summary(): string
     {
         return sprintf(
-            '%d tenant diperiksa, %d pelanggan diantrekan untuk suspend, %d pengingat jatuh tempo.',
+            '%d tenant diperiksa, %d tagihan dilunasi otomatis dari saldo, %d pelanggan diantrekan untuk suspend, %d pengingat jatuh tempo.',
             $this->tenants,
+            $this->renewed,
             $this->suspended,
             $this->reminded,
         );

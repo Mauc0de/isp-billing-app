@@ -42,8 +42,8 @@ class ScanOverdueInvoicesCommand extends Command
     private function renderReport(ScanReport $report): void
     {
         $this->table(
-            ['Tenant', 'Antrean suspend', 'Pengingat jatuh tempo'],
-            [[$report->tenants, $report->suspended, $report->reminded]],
+            ['Tenant', 'Auto-renew', 'Antrean suspend', 'Pengingat jatuh tempo'],
+            [[$report->tenants, $report->renewed, $report->suspended, $report->reminded]],
         );
 
         $this->line($report->summary());
