@@ -86,9 +86,9 @@
                 <div class="space-y-5">
                     @php
                         $totalPelanggan = $totalPelanggan > 0 ? $totalPelanggan : 1;
-                        $aktif = \App\Models\Pelanggan::where('status', 'aktif')->count();
-                        $menunggak = \App\Models\Pelanggan::where('status', 'menunggak')->count();
-                        $nonaktif = \App\Models\Pelanggan::where('status', 'nonaktif')->count();
+                        $aktif = \App\Models\Pelanggan::where('status', \App\Enums\CustomerStatus::Aktif->value)->count();
+                        $menunggak = \App\Models\Pelanggan::where('status', \App\Enums\CustomerStatus::Menunggak->value)->count();
+                        $nonaktif = \App\Models\Pelanggan::whereIn('status', [\App\Enums\CustomerStatus::Berhenti->value, \App\Enums\CustomerStatus::Ditangguhkan->value])->count();
                     @endphp
                     <div>
                         <div class="flex justify-between mb-2"><span class="text-sm">Aktif</span><span class="font-semibold">{{ $aktif }}</span></div>

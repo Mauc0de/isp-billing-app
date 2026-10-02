@@ -37,7 +37,10 @@
             <a href="/pengaturan" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->is('pengaturan*') ? 'bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white shadow-md font-semibold' : 'text-slate-600 hover:bg-slate-50' }}"><span>⚙️</span> Pengaturan</a>
         </nav>
         <div class="p-4 border-t border-slate-100">
-            <a href="/logout" class="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 hover:bg-rose-50 text-sm font-medium"><span>🚪</span> Keluar</a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 hover:bg-rose-50 text-sm font-medium"><span>🚪</span> Keluar</button>
+            </form>
         </div>
     </aside>
 
@@ -62,7 +65,10 @@
                 </nav>
             </div>
             <div class="p-4 border-t border-slate-100">
-                <a href="/logout" class="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 hover:bg-rose-50 transition-colors text-sm font-medium"><span class="text-base">🚪</span> Keluar</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 hover:bg-rose-50 transition-colors text-sm font-medium"><span class="text-base">🚪</span> Keluar</button>
+                </form>
             </div>
         </aside>
 

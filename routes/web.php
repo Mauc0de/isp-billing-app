@@ -1,172 +1,112 @@
 <?php
 
-use App\Models\Pelanggan;
-use App\Models\Paket;
-use App\Models\Tagihan;
-use App\Models\Pembayaran;
-use App\Models\Tenant;
-use App\Models\User;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\BillingController;
+use App\Http\Controllers\DashboardController;
+use App\Livewire\Portal\Dashboard;
+use App\Livewire\Portal\Paket;
+use App\Livewire\Portal\Pembayaran;
+use App\Livewire\Portal\Tagihan;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-Route::get('/', function () {
-    return view('welcome');
+/*
+|--------------------------------------------------------------------------
+| Publik
+|--------------------------------------------------------------------------
+|
+| Halaman yang boleh diakses tanpa login.
+|
+*/
+
+Route::get('/', fn () => view('welcome'))->name('welcome');
+
+/*
+|--------------------------------------------------------------------------
+| Guest (belum login)
+|--------------------------------------------------------------------------
+|
+| Satu pintu masuk untuk admin maupun pelanggan. Setelah login, pengguna
+| diarahkan otomatis: pelanggan ke portal, staf ke dashboard.
+|
+*/
+
+Route::middleware('guest')->group(function (): void {
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('login.store');
+
+    Route::get('/register', fn () => view('auth.register'))->name('register');
+    Route::post('/register', [AuthenticatedSessionController::class, 'register'])
+        ->middleware('throttle:6,1')
+        ->name('register.store');
 });
 
-Route::get('/portal', \App\Livewire\Portal\Dashboard::class)->name('portal');
-Route::get('/portal/tagihan', \App\Livewire\Portal\Tagihan::class)->name('portal.tagihan');
-Route::get('/portal/pembayaran', \App\Livewire\Portal\Pembayaran::class)->name('portal.pembayaran');
-Route::get('/portal/paket', \App\Livewire\Portal\Paket::class)->name('portal.paket');
+/*
+|--------------------------------------------------------------------------
+| Portal Pelanggan
+|--------------------------------------------------------------------------
+|
+| Khusus pengguna yang tertaut ke data pelanggan. Isi portal mengikuti
+| pelanggan milik user yang sedang login, bukan data milik tenant secara
+| keseluruhan.
+|
+*/
 
-Route::get('/login', function () {
-    if (Auth::check()) {
-        return redirect('/dashboard');
-    }
-
-    return view('auth.login');
-})->name('login');
-
-Route::post('/login', function (Request $request) {
-    $request->validate(['email' => 'required|email', 'password' => 'required']);
-
-    // Pakai guard Laravel, bukan session manual, supaya $request->user()
-    // bekerja untuk middleware ResolveTenant/EnsureRole/EnsurePermission.
-    if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
-        return back()->withErrors(['email' => 'Email atau password salah.'])->onlyInput('email');
-    }
-
-    $request->session()->regenerate();
-
-    return redirect('/dashboard');
+Route::middleware(['auth', 'tenant'])->prefix('portal')->name('portal.')->group(function (): void {
+    Route::get('/', Dashboard::class)->name('index');
+    Route::get('/tagihan', Tagihan::class)->name('tagihan');
+    Route::get('/pembayaran', Pembayaran::class)->name('pembayaran');
+    Route::get('/paket', Paket::class)->name('paket');
 });
 
-Route::get('/register', function () {
-    if (Auth::check()) {
-        return redirect('/dashboard');
-    }
+/*
+|--------------------------------------------------------------------------
+| Area Staf (dashboard)
+|--------------------------------------------------------------------------
+|
+| Middleware `tenant` menurunkan TenantContext dari user yang login dan
+| menolak user/tenant nonaktif. Akses dibatasi lewat permission: akun
+| pelanggan tanpa role tidak punya izin, sehingga otomatis ditolak 403.
+|
+*/
 
-    return view('auth.register');
-})->name('register');
+Route::middleware(['auth', 'tenant'])->group(function (): void {
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware('permission:dashboard.view')
+        ->name('dashboard');
 
-Route::post('/register', function (Request $request) {
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|min:6',
-    ]);
+    Route::get('/pelanggan', [BillingController::class, 'pelanggan'])
+        ->middleware('permission:customers.view')
+        ->name('pelanggan.index');
 
-    // tenant_id berisi ULID, bukan angka. Pada tahap pilot seluruh pengguna
-    // bergabung ke tenant aktif pertama.
-    $tenant = Tenant::where('is_active', true)->orderBy('created_at')->first();
+    Route::get('/paket', [BillingController::class, 'paket'])
+        ->middleware('permission:packages.view')
+        ->name('paket.index');
 
-    if ($tenant === null) {
-        return back()->withErrors(['email' => 'Belum ada tenant aktif. Hubungi administrator.']);
-    }
+    Route::get('/tagihan', [BillingController::class, 'tagihan'])
+        ->middleware('permission:invoices.view')
+        ->name('tagihan.index');
 
-    // Password di-hash oleh cast 'hashed' pada model User.
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => $request->password,
-        'tenant_id' => $tenant->id,
-        'is_active' => true,
-    ]);
+    Route::get('/pembayaran', [BillingController::class, 'pembayaran'])
+        ->middleware('permission:payments.view')
+        ->name('pembayaran.index');
 
-    // Login lewat guard, bukan hanya session manual, supaya middleware 'auth'
-    // dan 'tenant' mengenali user ini.
-    Auth::login($user);
-    $request->session()->regenerate();
+    Route::get('/laporan', [BillingController::class, 'laporan'])
+        ->middleware('permission:reports.view')
+        ->name('laporan.index');
 
-    return redirect('/dashboard');
+    Route::get('/pengaturan', [BillingController::class, 'pengaturan'])
+        ->middleware('permission:settings.view')
+        ->name('pengaturan.index');
 });
 
-Route::get('/admin/login', function () {
-    if (Auth::check()) {
-        return redirect('/dashboard');
-    }
+/*
+|--------------------------------------------------------------------------
+| Logout
+|--------------------------------------------------------------------------
+*/
 
-    return view('auth.admin_login');
-})->name('admin.login');
-
-Route::post('/admin/login', function (Request $request) {
-    $request->validate(['email' => 'required|email', 'password' => 'required']);
-
-    if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
-        return back()->withErrors(['email' => 'Email atau password salah.'])->onlyInput('email');
-    }
-
-    $request->session()->regenerate();
-
-    return redirect('/dashboard');
-});
-
-Route::get('/logout', function (Request $request) {
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect('/login');
-})->name('logout');
-
-Route::middleware(['auth', 'tenant'])->group(function () {
-    // Isolasi tenant ditangani global scope BelongsToTenant yang diaktifkan
-    // oleh middleware 'tenant'. Karena itu query di bawah tidak perlu lagi
-    // memfilter tenant_id secara manual.
-
-    Route::get('/dashboard', function () {
-        $totalPelanggan = Pelanggan::count();
-        $totalPaket = Paket::count();
-        $tagihanBelumBayar = Tagihan::where('status', 'belum_bayar')->count();
-        $pembayaranBulanIni = Pembayaran::whereMonth('tanggal_bayar', now()->month)->sum('jumlah');
-
-        return view('dashboard.index', compact(
-            'totalPelanggan',
-            'totalPaket',
-            'tagihanBelumBayar',
-            'pembayaranBulanIni'
-        ));
-    })->name('dashboard');
-
-    Route::get('/pelanggan', function () {
-        $pelanggan = Pelanggan::with('paket')->get();
-
-        return view('pelanggan.index', compact('pelanggan'));
-    })->name('pelanggan.index');
-
-    Route::get('/paket', function () {
-        $paket = Paket::get();
-
-        return view('paket.index', compact('paket'));
-    })->name('paket.index');
-
-    Route::get('/tagihan', function () {
-        $tagihan = Tagihan::with('pelanggan')->get();
-
-        return view('tagihan.index', compact('tagihan'));
-    })->name('tagihan.index');
-
-    Route::get('/pembayaran', function () {
-        $pembayaran = Pembayaran::with(['pelanggan', 'tagihan'])->get();
-
-        return view('pembayaran.index', compact('pembayaran'));
-    })->name('pembayaran.index');
-
-    Route::get('/laporan', function () {
-        $totalPendapatan = Pembayaran::where('status', 'berhasil')->sum('jumlah');
-        $totalTagihan = Tagihan::sum('jumlah');
-        $tagihanLunas = Tagihan::where('status', 'lunas')->count();
-        $tagihanBelumBayar = Tagihan::where('status', 'belum_bayar')->count();
-
-        return view('laporan.index', compact(
-            'totalPendapatan',
-            'totalTagihan',
-            'tagihanLunas',
-            'tagihanBelumBayar'
-        ));
-    })->name('laporan.index');
-
-    Route::get('/pengaturan', function () {
-        return view('pengaturan.index');
-    })->name('pengaturan.index');
-
-});
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');

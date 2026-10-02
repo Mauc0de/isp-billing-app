@@ -166,6 +166,22 @@ class DatabaseSeeder extends Seeder
             'tanggal_aktif' => '2026-05-10',
         ]);
 
+        // Akun portal untuk pelanggan pertama, supaya halaman /portal bisa
+        // dicoba tanpa registrasi manual.
+        $portalUser = User::updateOrCreate(
+            ['email' => 'ahmad.rizki@email.com'],
+            [
+                'tenant_id' => $tenant->id,
+                'name' => 'Ahmad Rizki',
+                'password' => 'pelanggan123',
+                'is_active' => true,
+            ],
+        );
+
+        Pelanggan::withoutGlobalScopes()
+            ->whereKey($pelanggan1->getKey())
+            ->update(['user_id' => $portalUser->id]);
+
         // Tagihan
         Tagihan::create([
             'tenant_id' => $tenant->id,

@@ -21,6 +21,7 @@ class Pelanggan extends Model
     protected $fillable = [
         'tenant_id',
         'customer_number',
+        'user_id',
         'nama',
         'telepon',
         'whatsapp_number',

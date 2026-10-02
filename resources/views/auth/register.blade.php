@@ -22,6 +22,11 @@
                         {{ $errors->first() }}
                     </div>
                 @endif
+                @if(session('status'))
+                    <div class="mt-4 bg-emerald-50 text-emerald-700 text-xs px-3 py-2 rounded border border-emerald-200">
+                        {{ session('status') }}
+                    </div>
+                @endif
                 <form method="POST" action="/register" class="space-y-4" id="register-form">
                     @csrf
                     <div class="relative border-b-2 border-gray-200 focus-within:border-blue-600 transition-colors">
@@ -41,6 +46,12 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15a2 2 0 100-4 2 2 0 000 4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 11V8a5 5 0 00-10 0v3"/><path stroke-linecap="round" stroke-linejoin="round" d="M5 11h14v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8z"/></svg>
                         </span>
                         <input type="password" name="password" placeholder="Kata Sandi" required class="w-full pl-7 pr-2 py-2.5 text-sm bg-transparent outline-none text-gray-900 font-medium placeholder-gray-500">
+                    </div>
+                    <div class="relative border-b-2 border-gray-200 focus-within:border-blue-600 transition-colors mt-4">
+                        <span class="absolute left-0 top-3 text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15a2 2 0 100-4 2 2 0 000 4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 11V8a5 5 0 00-10 0v3"/><path stroke-linecap="round" stroke-linejoin="round" d="M5 11h14v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8z"/></svg>
+                        </span>
+                        <input type="password" name="password_confirmation" placeholder="Ulangi Kata Sandi" required class="w-full pl-7 pr-2 py-2.5 text-sm bg-transparent outline-none text-gray-900 font-medium placeholder-gray-500">
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] hover:from-[#00B8A8] hover:via-[#0059C7] hover:to-[#0046B4] text-white text-sm font-bold py-3.5 rounded-xl shadow-md transition-all duration-200">Daftar</button>
                 </form>

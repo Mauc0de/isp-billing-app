@@ -94,7 +94,7 @@
                     <div class="bg-white rounded-2xl border border-slate-200/70 p-5 shadow-sm">
                         <p class="text-xs font-medium text-slate-400">Tagihan Bulan Ini</p>
                         <p class="text-[26px] font-extrabold text-slate-900 tracking-tight mt-1.5">
-                            Rp {{ number_format($tagihanBelumBayar * ($paket?->harga ?? 0), 0, ',', '.') }}
+                            Rp {{ number_format($totalTagihanBelumBayar, 0, ',', '.') }}
                         </p>
                         <p class="text-[11px] font-semibold text-slate-400 mt-2 flex items-center gap-1">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>

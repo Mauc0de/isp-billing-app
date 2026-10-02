@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Auth\TenantRoleProvisioner;
 use App\Http\Controllers\Controller;
+use App\Models\Pelanggan;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Tenancy\TenantContext;
@@ -12,15 +12,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Authenticate using the provided credentials.
+     * Satu pintu masuk untuk admin maupun pelanggan.
      *
-     * Aturan mengikuti kontrak tenancy di docs/backend-foundation.md:
-     * user nonaktif dan tenant nonaktif tidak boleh memperoleh sesi.
+     * Setelah kredensial valid, tujuan diarahkan otomatis: user yang tertaut
+     * ke data pelanggan masuk ke portal, selebihnya (staff/admin) ke dashboard.
      */
+    public function create(): View
+    {
+        return view('auth.login');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
@@ -28,19 +34,17 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $user = User::query()
-            ->where('email', $credentials['email'])
-            ->first();
+        $user = User::query()->where('email', $credentials['email'])->first();
 
         if ($user === null || ! Auth::validate($credentials)) {
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'email' => 'Email atau password salah.',
             ]);
         }
 
         if (! $user->is_active) {
             throw ValidationException::withMessages([
-                'email' => __('auth.inactive'),
+                'email' => 'Akun Anda belum aktif. Hubungi administrator.',
             ]);
         }
 
@@ -48,7 +52,7 @@ class AuthenticatedSessionController extends Controller
 
         if ($tenant === null || ! $tenant->is_active) {
             throw ValidationException::withMessages([
-                'email' => __('auth.inactive'),
+                'email' => 'Tenant tidak aktif. Hubungi administrator.',
             ]);
         }
 
@@ -57,15 +61,16 @@ class AuthenticatedSessionController extends Controller
 
         $user->forceFill(['last_login_at' => now()])->saveQuietly();
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended($this->homeFor($user));
     }
 
     /**
-     * Register a new user into an existing tenant.
+     * Pendaftaran akun mandiri (request access).
      *
-     * Pendaftaran tidak membuat tenant baru. Tenant dibentuk oleh seeder atau
-     * operasi administratif, dan user baru wajib punya tenant sebelum bisa login.
-     * User baru diberi role `staff` sebagai akses awal.
+     * Akun dibuat NONAKTIF dan baru bisa dipakai setelah administrator
+     * mengaktifkannya. Bila sudah ada data pelanggan dengan email yang sama
+     * di tenant tersebut, akun langsung ditautkan supaya portal pelanggan
+     * mengenali pemiliknya.
      */
     public function register(Request $request): RedirectResponse
     {
@@ -73,53 +78,44 @@ class AuthenticatedSessionController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'tenant_slug' => ['required', 'string', 'exists:tenants,slug'],
+            'tenant_slug' => ['nullable', 'string', 'exists:tenants,slug'],
         ]);
 
-        $tenant = Tenant::query()
-            ->where('slug', $validated['tenant_slug'])
-            ->where('is_active', true)
-            ->first();
+        $tenant = $this->resolveRegistrationTenant($validated['tenant_slug'] ?? null);
 
         if ($tenant === null) {
             throw ValidationException::withMessages([
-                'tenant_slug' => __('auth.tenant_inactive'),
+                'email' => 'Belum ada tenant aktif. Hubungi administrator.',
             ]);
         }
 
-        $user = DB::transaction(function () use ($validated, $tenant): User {
-            $created = app(TenantContext::class)->run(
-                $tenant->getKey(),
-                fn (): User => User::query()->create([
+        app(TenantContext::class)->run($tenant->getKey(), function () use ($validated, $tenant): void {
+            DB::transaction(function () use ($validated, $tenant): void {
+                $user = User::query()->create([
                     'tenant_id' => $tenant->getKey(),
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'password' => $validated['password'],
-                    'is_active' => true,
-                ]),
-            );
+                    'is_active' => false,
+                ]);
 
-            $staffRole = app(TenantRoleProvisioner::class)
-                ->provision($tenant)
-                ->firstWhere('slug', 'staff');
+                // Tautkan ke data pelanggan yang emailnya cocok dan belum
+                // punya akun, supaya portal langsung mengenali pemiliknya.
+                Pelanggan::query()
+                    ->whereNull('user_id')
+                    ->where('email', $validated['email'])
+                    ->update(['user_id' => $user->getKey()]);
 
-            $created->assignRole($staffRole);
-
-            return $created;
+                // Sengaja tidak diberi role apa pun: akun menunggu persetujuan,
+                // dan administrator yang menentukan role-nya saat mengaktifkan.
+            });
         });
 
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->route('dashboard');
+        return redirect()
+            ->route('login')
+            ->with('status', 'Pendaftaran berhasil. Akun Anda menunggu persetujuan administrator.');
     }
 
-    /**
-     * Destroy an authenticated session.
-     *
-     * Tenant context dibersihkan eksplisit karena worker jangka panjang dapat
-     * memakai instance TenantContext yang sama antar request.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
@@ -130,5 +126,33 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    /**
+     * Halaman tujuan setelah login: portal untuk pelanggan, dashboard untuk staf.
+     *
+     * Dicek tanpa global scope tenant karena saat login konteks tenant belum
+     * diturunkan (itu tugas middleware `tenant` setelah request masuk).
+     */
+    private function homeFor(User $user): string
+    {
+        $isPelanggan = Pelanggan::withoutGlobalScopes()
+            ->where('user_id', $user->getKey())
+            ->exists();
+
+        return $isPelanggan ? route('portal.index') : route('dashboard');
+    }
+
+    /**
+     * Tenant untuk pendaftaran: pakai slug bila diberi, kalau tidak tenant
+     * aktif pertama. Aplikasi ini berjalan satu tenant per instalasi pilot.
+     */
+    private function resolveRegistrationTenant(?string $slug): ?Tenant
+    {
+        return Tenant::query()
+            ->where('is_active', true)
+            ->when($slug !== null, fn ($query) => $query->where('slug', $slug))
+            ->orderBy('created_at')
+            ->first();
     }
 }

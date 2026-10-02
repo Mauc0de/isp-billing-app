@@ -2,23 +2,32 @@
 
 namespace Tests\Feature\Tenancy;
 
+use App\Auth\TenantRoleProvisioner;
 use App\Models\Pelanggan;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Tenancy\TenantContext;
+use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
  * Isolasi tenant di level HTTP.
  *
- * Route memakai session('tenant_id') secara manual, sementara model memakai
- * global scope BelongsToTenant. Test ini memastikan keduanya tidak bocor:
- * data tenant lain tidak boleh muncul di halaman manapun.
+ * Route memakai global scope BelongsToTenant melalui middleware `tenant`.
+ * Test ini memastikan data tenant lain tidak bocor ke halaman staf.
  */
 class TenantIsolationWebTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(PermissionSeeder::class);
+        app(TenantContext::class)->forget();
+    }
 
     protected function tearDown(): void
     {
@@ -40,7 +49,7 @@ class TenantIsolationWebTest extends TestCase
             Pelanggan::query()->create(['nama' => 'Pelanggan Milik Beta']);
         });
 
-        $userA = User::factory()->create(['tenant_id' => $tenantA->getKey()]);
+        $userA = $this->adminOf($tenantA);
 
         $response = $this->actingAs($userA)->get('/pelanggan');
 
@@ -63,7 +72,7 @@ class TenantIsolationWebTest extends TestCase
             Pelanggan::query()->create(['nama' => 'Pelanggan Beta 2']);
         });
 
-        $userA = User::factory()->create(['tenant_id' => $tenantA->getKey()]);
+        $userA = $this->adminOf($tenantA);
 
         $response = $this->actingAs($userA)->get('/dashboard');
 
@@ -93,5 +102,31 @@ class TenantIsolationWebTest extends TestCase
         $user = User::factory()->create(['tenant_id' => $tenant->getKey()]);
 
         $this->actingAs($user)->get('/dashboard')->assertForbidden();
+    }
+
+    public function test_pelanggan_tanpa_role_tidak_boleh_melihat_area_staf(): void
+    {
+        $tenant = Tenant::factory()->create();
+        $user = User::factory()->create(['tenant_id' => $tenant->getKey()]);
+
+        // Tanpa role/permission apa pun, halaman staf harus ditolak.
+        $this->actingAs($user)->get('/dashboard')->assertForbidden();
+    }
+
+    /**
+     * User dengan role admin (semua permission) pada tenant tertentu.
+     */
+    private function adminOf(Tenant $tenant): User
+    {
+        return app(TenantContext::class)->run($tenant->getKey(), function () use ($tenant): User {
+            $admin = app(TenantRoleProvisioner::class)
+                ->provision($tenant)
+                ->firstWhere('slug', 'admin');
+
+            $user = User::factory()->create(['tenant_id' => $tenant->getKey()]);
+            $user->assignRole($admin);
+
+            return $user;
+        });
     }
 }
