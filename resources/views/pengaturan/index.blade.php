@@ -34,17 +34,17 @@
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Masa Tenggang Suspend (hari)</label>
+                    <label class="label">Masa Tenggang Suspend (hari)</label>
                     <input type="number" name="grace_period_days" value="{{ old('grace_period_days', $gracePeriodDays) }}" min="0" max="90" required
                            @cannot('settings.update') disabled @endcannot
-                           class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50">
+                           class="input">
                     <p class="text-xs text-slate-400 mt-1">Pelanggan disuspend setelah lewat jatuh tempo sekian hari.</p>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Pengingat Jatuh Tempo (hari sebelum)</label>
+                    <label class="label">Pengingat Jatuh Tempo (hari sebelum)</label>
                     <input type="number" name="reminder_days_before" value="{{ old('reminder_days_before', $reminderDaysBefore) }}" min="0" max="30" required
                            @cannot('settings.update') disabled @endcannot
-                           class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50">
+                           class="input">
                     <p class="text-xs text-slate-400 mt-1">Pengingat WhatsApp dikirim sekian hari sebelum jatuh tempo.</p>
                 </div>
             </div>
@@ -58,9 +58,9 @@
             </div>
             <div class="p-6 space-y-4">
                 <div class="md:w-1/2">
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Provider</label>
+                    <label class="label">Provider</label>
                     <select name="whatsapp_provider" @cannot('settings.update') disabled @endcannot
-                            class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 bg-white outline-none focus:border-blue-500 disabled:bg-slate-50">
+                            class="input">
                         @foreach($providers as $provider)
                             <option value="{{ $provider->value }}" @selected(old('whatsapp_provider', $whatsappProvider) === $provider->value)>
                                 {{ ucfirst($provider->value) }}
@@ -74,19 +74,19 @@
                 </p>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Template Suspend</label>
+                    <label class="label">Template Suspend</label>
                     <textarea name="template_suspend" rows="3" @cannot('settings.update') disabled @endcannot
-                              class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50">{{ old('template_suspend', $templates['suspend']) }}</textarea>
+                              class="input">{{ old('template_suspend', $templates['suspend']) }}</textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Template Reaktivasi</label>
+                    <label class="label">Template Reaktivasi</label>
                     <textarea name="template_reactivate" rows="3" @cannot('settings.update') disabled @endcannot
-                              class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50">{{ old('template_reactivate', $templates['reactivate']) }}</textarea>
+                              class="input">{{ old('template_reactivate', $templates['reactivate']) }}</textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Template Pengingat Jatuh Tempo</label>
+                    <label class="label">Template Pengingat Jatuh Tempo</label>
                     <textarea name="template_due_reminder" rows="3" @cannot('settings.update') disabled @endcannot
-                              class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50">{{ old('template_due_reminder', $templates['due_reminder']) }}</textarea>
+                              class="input">{{ old('template_due_reminder', $templates['due_reminder']) }}</textarea>
                 </div>
             </div>
         </div>
@@ -99,29 +99,29 @@
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nama Bank</label>
+                    <label class="label">Nama Bank</label>
                     <input type="text" name="bank_name" value="{{ old('bank_name', $bank['nama']) }}" maxlength="100" required
                            @cannot('settings.update') disabled @endcannot
-                           class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50">
+                           class="input">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nomor Rekening</label>
+                    <label class="label">Nomor Rekening</label>
                     <input type="text" name="bank_number" value="{{ old('bank_number', $bank['nomor']) }}" maxlength="50" required
                            @cannot('settings.update') disabled @endcannot
-                           class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50">
+                           class="input">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Atas Nama</label>
+                    <label class="label">Atas Nama</label>
                     <input type="text" name="bank_holder" value="{{ old('bank_holder', $bank['atas_nama']) }}" maxlength="100" required
                            @cannot('settings.update') disabled @endcannot
-                           class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50">
+                           class="input">
                 </div>
             </div>
         </div>
 
         @can('settings.update')
         <div class="flex justify-end">
-            <button type="submit" class="bg-gradient-to-r from-[#00D2B4] via-[#0066FF] to-[#0052FF] text-white text-sm font-semibold px-6 py-3 rounded-xl shadow-md">
+            <button type="submit" class="btn-primary">
                 Simpan Pengaturan
             </button>
         </div>

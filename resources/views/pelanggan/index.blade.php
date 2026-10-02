@@ -3,49 +3,45 @@
 @section('title', 'Pelanggan')
 
 @section('content')
-<header class="bg-white shadow-sm py-4 md:py-5 px-4 md:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-    <div>
-        <h2 class="text-xl md:text-2xl font-bold text-gray-800">Pelanggan</h2>
-        <p class="text-gray-500 text-xs md:text-sm">Kelola data pelanggan ISP</p>
-    </div>
-</header>
+<x-page-header title="Pelanggan" subtitle="Kelola data pelanggan ISP" />
+
 <div class="p-4 md:p-8">
-    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <x-card>
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[700px] text-sm">
-                <thead class="bg-gray-50">
+            <table class="w-full min-w-[760px] text-sm">
+                <thead class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-400">
                     <tr>
-                        <th class="text-left p-4 text-gray-500">Nama</th>
-                        <th class="text-left p-4 text-gray-500">Telepon</th>
-                        <th class="text-left p-4 text-gray-500">Email</th>
-                        <th class="text-left p-4 text-gray-500">Paket</th>
-                        <th class="text-left p-4 text-gray-500">Status</th>
-                        <th class="text-left p-4 text-gray-500">Tanggal Aktif</th>
+                        <th class="p-4 font-bold">Nama</th>
+                        <th class="p-4 font-bold">Telepon</th>
+                        <th class="p-4 font-bold">Email</th>
+                        <th class="p-4 font-bold">Paket</th>
+                        <th class="p-4 font-bold">Status</th>
+                        <th class="p-4 font-bold">Tanggal Aktif</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($pelanggan as $p)
-                    <tr class="border-t">
-                        <td class="p-4 font-medium">{{ $p->nama }}</td>
-                        <td class="p-4 text-gray-500">{{ $p->telepon }}</td>
-                        <td class="p-4 text-gray-500">{{ $p->email }}</td>
-                        <td class="p-4 text-gray-500">{{ $p->paket->nama_paket ?? '-' }}</td>
-                        <td class="p-4">
-                            <span class="px-3 py-1 rounded-full text-xs
-                                {{ $p->status === \App\Enums\CustomerStatus::Aktif ? 'bg-green-100 text-green-700' : (in_array($p->status, [\App\Enums\CustomerStatus::Menunggak, \App\Enums\CustomerStatus::Ditangguhkan], true) ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700') }}">
-                                {{ $p->status->value }}
-                            </span>
-                        </td>
-                        <td class="p-4 text-gray-500">{{ $p->tanggal_aktif?->format('d/m/Y') ?? '-' }}</td>
+                    @php
+                        $tone = match(true) {
+                            $p->status === \App\Enums\CustomerStatus::Aktif => 'emerald',
+                            in_array($p->status, [\App\Enums\CustomerStatus::Menunggak, \App\Enums\CustomerStatus::Ditangguhkan], true) => 'rose',
+                            default => 'slate',
+                        };
+                    @endphp
+                    <tr class="border-t border-slate-100 hover:bg-slate-50/60">
+                        <td class="p-4 font-medium text-slate-900">{{ $p->nama }}</td>
+                        <td class="p-4 text-slate-500">{{ $p->telepon ?? '—' }}</td>
+                        <td class="p-4 text-slate-500">{{ $p->email ?? '—' }}</td>
+                        <td class="p-4 text-slate-500">{{ $p->paket->nama_paket ?? '—' }}</td>
+                        <td class="p-4"><x-badge :tone="$tone">{{ $p->status->value }}</x-badge></td>
+                        <td class="p-4 text-slate-500">{{ $p->tanggal_aktif?->format('d/m/Y') ?? '—' }}</td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="6" class="p-8 text-center text-gray-400">Belum ada pelanggan</td>
-                    </tr>
+                    <tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pelanggan</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-card>
 </div>
 @endsection

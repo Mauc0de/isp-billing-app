@@ -3,47 +3,43 @@
 @section('title', 'Pembayaran')
 
 @section('content')
-<header class="bg-white shadow-sm py-4 md:py-5 px-4 md:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-    <div>
-        <h2 class="text-xl md:text-2xl font-bold text-gray-800">Pembayaran</h2>
-        <p class="text-gray-500 text-xs md:text-sm">Riwayat pembayaran pelanggan</p>
-    </div>
-</header>
+<x-page-header title="Pembayaran" subtitle="Riwayat pembayaran pelanggan" />
+
 <div class="p-4 md:p-8">
-    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <x-card>
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[700px] text-sm">
-                <thead class="bg-gray-50">
+            <table class="w-full min-w-[720px] text-sm">
+                <thead class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-400">
                     <tr>
-                        <th class="text-left p-4 text-gray-500">Pelanggan</th>
-                        <th class="text-left p-4 text-gray-500">Jumlah</th>
-                        <th class="text-left p-4 text-gray-500">Tanggal Bayar</th>
-                        <th class="text-left p-4 text-gray-500">Metode</th>
-                        <th class="text-left p-4 text-gray-500">Status</th>
+                        <th class="p-4 font-bold">Pelanggan</th>
+                        <th class="p-4 font-bold">Jumlah</th>
+                        <th class="p-4 font-bold">Tanggal Bayar</th>
+                        <th class="p-4 font-bold">Metode</th>
+                        <th class="p-4 font-bold">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($pembayaran as $p)
-                    <tr class="border-t">
-                        <td class="p-4 font-medium">{{ $p->pelanggan->nama ?? '-' }}</td>
-                        <td class="p-4 whitespace-nowrap">Rp {{ number_format($p->jumlah, 0, ',', '.') }}</td>
-                        <td class="p-4 text-gray-500">{{ $p->tanggal_bayar?->format('d/m/Y') ?? '-' }}</td>
-                        <td class="p-4 text-gray-500">{{ $p->metode_pembayaran ?? '-' }}</td>
-                        <td class="p-4">
-                            <span class="px-3 py-1 rounded-full text-xs
-                                {{ $p->status === 'berhasil' ? 'bg-green-100 text-green-700' : ($p->status === 'menunggu' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700') }}">
-                                {{ $p->status }}
-                            </span>
-                        </td>
+                    @php
+                        $tone = match($p->status) {
+                            'berhasil' => 'emerald',
+                            'menunggu' => 'amber',
+                            default => 'rose',
+                        };
+                    @endphp
+                    <tr class="border-t border-slate-100 hover:bg-slate-50/60">
+                        <td class="p-4 font-medium text-slate-900">{{ $p->pelanggan->nama ?? '—' }}</td>
+                        <td class="whitespace-nowrap p-4 font-semibold text-slate-900">Rp {{ number_format($p->jumlah, 0, ',', '.') }}</td>
+                        <td class="p-4 text-slate-500">{{ $p->tanggal_bayar?->format('d/m/Y') ?? '—' }}</td>
+                        <td class="p-4 text-slate-500">{{ $p->metode_pembayaran ?? '—' }}</td>
+                        <td class="p-4"><x-badge :tone="$tone">{{ $p->status }}</x-badge></td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="5" class="p-8 text-center text-gray-400">Belum ada pembayaran</td>
-                    </tr>
+                    <tr><td colspan="5" class="p-8 text-center text-slate-400">Belum ada pembayaran</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-card>
 </div>
 @endsection

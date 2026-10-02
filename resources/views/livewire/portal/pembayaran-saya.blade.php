@@ -1,31 +1,5 @@
 <div class="bg-[#F1F5F9] text-slate-800 min-h-screen">
-    <!-- Sidebar -->
-    <aside class="w-60 bg-white flex-col h-full border-r border-slate-200 shrink-0 hidden md:flex fixed left-0 top-0 z-30">
-        <div class="h-16 flex items-center px-5 gap-3 border-b border-slate-100">
-            <div class="w-9 h-9 bg-[#2563EB] rounded-lg flex items-center justify-center shrink-0">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg>
-            </div>
-            <div>
-                <p class="font-extrabold text-slate-900 text-[15px] leading-tight tracking-wide">SATAK</p>
-                <p class="text-[11px] text-slate-400 font-medium">Solusi Internet</p>
-            </div>
-        </div>
-        <div class="px-4 py-5 flex-1">
-            <p class="px-3 text-[10px] font-bold text-slate-400 mb-3 tracking-widest uppercase">Menu</p>
-            <nav class="space-y-1">
-                <a href="/portal" class="flex items-center gap-3 text-slate-500 hover:text-slate-900 hover:bg-slate-100 px-3 py-2.5 rounded-xl font-medium text-sm transition">Dashboard</a>
-                <a href="/portal/tagihan" class="flex items-center gap-3 text-slate-500 hover:text-slate-900 hover:bg-slate-100 px-3 py-2.5 rounded-xl font-medium text-sm transition">Tagihan Saya</a>
-                <a href="/portal/pembayaran" class="flex items-center gap-3 text-slate-500 hover:text-slate-900 hover:bg-slate-100 px-3 py-2.5 rounded-xl font-medium text-sm transition">Pembayaran</a>
-                <a href="/portal/pembayaran-saya" class="flex items-center gap-3 bg-[#2563EB] text-white px-3 py-2.5 rounded-xl font-semibold text-sm shadow-sm">Bayar / Top-up</a>
-                <a href="/portal/paket" class="flex items-center gap-3 text-slate-500 hover:text-slate-900 hover:bg-slate-100 px-3 py-2.5 rounded-xl font-medium text-sm transition">Paket Internet</a>
-            </nav>
-        </div>
-        <div class="p-4 border-t border-slate-100">
-            <a href="/logout" onclick="event.preventDefault(); document.getElementById('portal-logout').submit();" class="flex items-center gap-3 bg-slate-900 hover:bg-slate-800 text-white px-3 py-2.5 rounded-xl font-semibold text-sm transition">Keluar</a>
-            <form id="portal-logout" method="POST" action="{{ route('logout') }}" class="hidden">@csrf</form>
-        </div>
-    </aside>
-
+    <x-portal-sidebar />
     <main class="md:ml-60 flex flex-col min-h-screen">
         <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-20">
             <div>

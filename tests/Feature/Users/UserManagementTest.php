@@ -70,7 +70,7 @@ class UserManagementTest extends TestCase
         $this->actingAs($this->admin)
             ->get('/dashboard')
             ->assertOk()
-            ->assertSee('href="/pengguna"', false);
+            ->assertSee('/pengguna', false);
 
         // Role staff bisa membuka dashboard tapi tidak punya users.view,
         // jadi tautan menu tidak boleh dirender.
@@ -88,7 +88,7 @@ class UserManagementTest extends TestCase
         $this->actingAs($staff)
             ->get('/dashboard')
             ->assertOk()
-            ->assertDontSee('href="/pengguna"', false);
+            ->assertDontSee('/pengguna', false);
     }
 
     public function test_admin_can_create_user_with_role(): void

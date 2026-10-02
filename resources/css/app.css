@@ -8,4 +8,68 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Warna brand SATAK, dipakai konsisten lewat utility bg-brand-*, text-brand-*. */
+    --color-brand-50: #eef5ff;
+    --color-brand-100: #d9e8ff;
+    --color-brand-200: #bcd6ff;
+    --color-brand-300: #8ebbff;
+    --color-brand-400: #5a95ff;
+    --color-brand-500: #0066ff;
+    --color-brand-600: #0052ff;
+    --color-brand-700: #0043d6;
+    --color-brand-800: #0037a8;
+    --color-brand-900: #002a7a;
+
+    /* Aksen teal pada logo. */
+    --color-accent-400: #2ee0c2;
+    --color-accent-500: #00d2b4;
+    --color-accent-600: #00a896;
+}
+
+@layer base {
+    /* Scrollbar tipis yang tidak mengganggu di sidebar/tabel. */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 9999px;
+    }
+}
+
+@layer components {
+    /* Kelas bersama supaya tombol & input seragam di seluruh halaman.
+       Sengaja menuliskan ulang utility dasar di tiap varian (bukan @apply .btn)
+       karena @apply hanya menerima utility, bukan kelas komponen kustom. */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-50 text-white shadow-md shadow-brand-500/20 bg-gradient-to-r from-accent-500 via-brand-500 to-brand-600 hover:brightness-105;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-50 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-50 border border-rose-200 bg-white text-rose-600 hover:bg-rose-50;
+    }
+
+    .input {
+        @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-50;
+    }
+
+    .label {
+        @apply mb-1.5 block text-xs font-semibold text-slate-600;
+    }
 }
