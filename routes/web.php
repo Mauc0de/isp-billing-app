@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentRequestController;
+use App\Http\Controllers\RouterController;
 use App\Http\Controllers\SaldoController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
@@ -95,13 +96,57 @@ Route::middleware(['auth', 'tenant'])->group(function (): void {
         ->middleware('permission:invoices.view')
         ->name('tagihan.index');
 
+    Route::get('/tagihan/{tagihan}/pdf', [BillingController::class, 'tagihanPdf'])
+        ->middleware('permission:invoices.view')
+        ->name('tagihan.pdf');
+
     Route::get('/pembayaran', [BillingController::class, 'pembayaran'])
         ->middleware('permission:payments.view')
         ->name('pembayaran.index');
 
+    Route::get('/router', [RouterController::class, 'index'])
+        ->middleware('permission:routers.view')
+        ->name('router.index');
+
+    Route::post('/router', [RouterController::class, 'store'])
+        ->middleware('permission:routers.manage')
+        ->name('router.store');
+
+    Route::patch('/router/{router}', [RouterController::class, 'update'])
+        ->middleware('permission:routers.manage')
+        ->name('router.update');
+
+    Route::post('/router/{router}/test', [RouterController::class, 'test'])
+        ->middleware('permission:routers.manage')
+        ->name('router.test');
+
+    Route::post('/router/{router}/toggle', [RouterController::class, 'toggle'])
+        ->middleware('permission:routers.manage')
+        ->name('router.toggle');
+
+    Route::delete('/router/{router}', [RouterController::class, 'destroy'])
+        ->middleware('permission:routers.manage')
+        ->name('router.destroy');
+
     Route::get('/laporan', [BillingController::class, 'laporan'])
         ->middleware('permission:reports.view')
         ->name('laporan.index');
+
+    Route::get('/laporan/export', [BillingController::class, 'export'])
+        ->middleware('permission:reports.export')
+        ->name('laporan.export');
+
+    Route::get('/pengeluaran', [BillingController::class, 'pengeluaranIndex'])
+        ->middleware('permission:expenses.view')
+        ->name('pengeluaran.index');
+
+    Route::post('/pengeluaran', [BillingController::class, 'pengeluaranStore'])
+        ->middleware('permission:expenses.manage')
+        ->name('pengeluaran.store');
+
+    Route::delete('/pengeluaran/{pengeluaran}', [BillingController::class, 'pengeluaranDestroy'])
+        ->middleware('permission:expenses.manage')
+        ->name('pengeluaran.destroy');
 
     Route::get('/pengaturan', [SettingController::class, 'index'])
         ->middleware('permission:settings.view')

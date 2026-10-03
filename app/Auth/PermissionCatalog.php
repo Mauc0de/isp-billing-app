@@ -52,6 +52,10 @@ final class PermissionCatalog
 
     public const REPORTS_EXPORT = 'reports.export';
 
+    public const EXPENSES_VIEW = 'expenses.view';
+
+    public const EXPENSES_MANAGE = 'expenses.manage';
+
     public const ROUTERS_VIEW = 'routers.view';
 
     public const ROUTERS_MANAGE = 'routers.manage';
@@ -116,6 +120,9 @@ final class PermissionCatalog
 
             ['name' => 'Lihat laporan', 'slug' => self::REPORTS_VIEW, 'permission_group' => 'reports', 'description' => 'Melihat laporan.'],
             ['name' => 'Export laporan', 'slug' => self::REPORTS_EXPORT, 'permission_group' => 'reports', 'description' => 'Mengekspor laporan.'],
+
+            ['name' => 'Lihat pengeluaran', 'slug' => self::EXPENSES_VIEW, 'permission_group' => 'expenses', 'description' => 'Melihat catatan pengeluaran.'],
+            ['name' => 'Kelola pengeluaran', 'slug' => self::EXPENSES_MANAGE, 'permission_group' => 'expenses', 'description' => 'Menambah/menghapus pengeluaran.'],
 
             ['name' => 'Lihat router', 'slug' => self::ROUTERS_VIEW, 'permission_group' => 'routers', 'description' => 'Melihat router dan status koneksi.'],
             ['name' => 'Kelola router', 'slug' => self::ROUTERS_MANAGE, 'permission_group' => 'routers', 'description' => 'Mengelola konfigurasi router.'],

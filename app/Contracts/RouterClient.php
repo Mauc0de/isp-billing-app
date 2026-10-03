@@ -48,4 +48,21 @@ interface RouterClient
      * @throws RouterOperationFailed
      */
     public function activeSessionCount(): int;
+
+    /**
+     * Pastikan PPP secret ada di router dengan kredensial & profile yang sesuai.
+     *
+     * Idempoten: secret yang sudah cocok tidak diubah; yang belum ada dibuat;
+     * yang beda di-update.
+     *
+     * @throws RouterOperationFailed
+     */
+    public function ensurePppSecret(string $username, string $password, string $profile, bool $disabled = false): void;
+
+    /**
+     * Pastikan user hotspot ada di router (dipakai untuk sync voucher).
+     *
+     * @throws RouterOperationFailed
+     */
+    public function ensureHotspotUser(string $username, string $password, string $profile, bool $disabled = false): void;
 }

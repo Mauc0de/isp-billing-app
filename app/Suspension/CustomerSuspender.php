@@ -15,6 +15,7 @@ use App\Models\SuspendLog;
 use App\Models\Tagihan;
 use App\Models\User;
 use App\Whatsapp\WhatsappNotifier;
+use App\Telegram\TelegramNotifier;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -33,6 +34,7 @@ class CustomerSuspender
     public function __construct(
         private readonly RouterClientFactory $routers,
         private readonly WhatsappNotifier $notifier,
+        private readonly TelegramNotifier $telegram,
     ) {}
 
     public function suspend(
@@ -107,6 +109,8 @@ class CustomerSuspender
         ]);
 
         $this->notifier->notifySuspended($log, $pelanggan, $tagihan);
+
+        $this->telegram->notifySuspended($pelanggan, $tagihan);
 
         return $log;
     }

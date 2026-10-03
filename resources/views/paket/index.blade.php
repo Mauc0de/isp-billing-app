@@ -15,7 +15,7 @@
             </div>
             <p class="mb-2 text-sm font-medium text-brand-600">{{ $p->kecepatan ?? '—' }}</p>
             <p class="mb-4 text-xs text-slate-500">{{ $p->deskripsi ?? '—' }}</p>
-            <p class="text-xl font-bold text-slate-900">Rp {{ number_format($p->harga, 0, ',', '.') }}<span class="text-sm font-normal text-slate-400">/bulan</span></p>
+            <p class="text-xl font-bold text-slate-900">Rp {{ number_format($p->harga, 0, ',', '.') }}<span class="text-sm font-normal text-slate-400">/{{ match($p->billing_cycle?->value) { 'quarterly' => '3 bulan', 'yearly' => 'tahun', default => 'bulan' } }}</span></p>
         </div>
         @empty
         <div class="col-span-full rounded-2xl border border-slate-200/70 bg-white p-8 text-center text-slate-400 shadow-sm">

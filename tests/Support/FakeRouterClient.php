@@ -69,6 +69,26 @@ final class FakeRouterClient implements RouterClient
         return $this->sessionCount;
     }
 
+    public function ensureHotspotUser(string $username, string $password, string $profile, bool $disabled = false): void
+    {
+        $this->calls[] = [
+            'method' => 'hotspot',
+            'action' => 'ensure_hotspot_user',
+            'username' => $username,
+            'address' => null,
+        ];
+    }
+
+    public function ensurePppSecret(string $username, string $password, string $profile, bool $disabled = false): void
+    {
+        $this->calls[] = [
+            'method' => 'ppp_secret',
+            'action' => 'ensure_ppp_secret',
+            'username' => $username,
+            'address' => null,
+        ];
+    }
+
     /**
      * @return list<array{method: string, action: string, username: string, address: string|null}>
      */

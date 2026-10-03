@@ -55,6 +55,7 @@ return [
         'resource' => '/system/resource/print',
         'ppp_secret' => '/ppp/secret',
         'active' => '/ppp/active/print',
+        'hotspot_user' => '/ip/hotspot/user',
         'address_list' => '/ip/firewall/address-list',
     ],
 

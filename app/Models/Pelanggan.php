@@ -30,6 +30,7 @@ class Pelanggan extends Model
         'paket_id',
         'router_id',
         'mikrotik_username',
+        'pppoe_password',
         'status',
         'saldo',
         'auto_renew',
@@ -42,9 +43,12 @@ class Pelanggan extends Model
         'archived_at',
     ];
 
+    protected $hidden = ['pppoe_password'];
+
     protected function casts(): array
     {
         return [
+            'pppoe_password' => 'encrypted',
             'status' => CustomerStatus::class,
             'saldo' => 'integer',
             'auto_renew' => 'boolean',

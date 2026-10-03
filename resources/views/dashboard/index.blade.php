@@ -37,6 +37,43 @@
         <x-stat-card label="Pendapatan Bulan Ini" value="Rp {{ number_format($pembayaranBulanIni, 0, ',', '.') }}" tone="emerald" />
     </div>
 
+    <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        @php
+            $routerTotal = \App\Models\Router::whereNull('archived_at')->count();
+            $routerOnline = \App\Models\Router::where('status', \App\Enums\RouterStatus::Online->value)->count();
+            $routerOffline = \App\Models\Router::where('status', \App\Enums\RouterStatus::Offline->value)->count();
+        @endphp
+        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Router</p>
+            <p class="mt-1 text-2xl font-black text-slate-800">{{ $routerTotal }}</p>
+        </div>
+        <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Online</p>
+            <p class="mt-1 text-2xl font-black text-emerald-700">{{ $routerOnline }}</p>
+        </div>
+        <div class="rounded-2xl border border-rose-100 bg-rose-50 p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-rose-600">Offline</p>
+            <p class="mt-1 text-2xl font-black text-rose-700">{{ $routerOffline }}</p>
+        </div>
+        <a href="{{ route('router.index') }}" class="flex items-center justify-center rounded-2xl border border-dashed border-slate-200 p-4 text-sm font-semibold text-brand-600 hover:bg-brand-50">Kelola Router →</a>
+    </div>
+
+    <div class="mb-6 grid grid-cols-1 gap-4 xl:grid-cols-3 md:mb-8 md:gap-6">
+        <x-card class="xl:col-span-2">
+            <x-slot:title>Pendapatan 6 Bulan Terakhir</x-slot:title>
+            <x-slot:subtitle>Total pembayaran pelanggan per bulan</x-slot:subtitle>
+            <div class="p-5">
+                <canvas id="chartPendapatan" height="120"></canvas>
+            </div>
+        </x-card>
+
+        <x-card title="Status Tagihan" subtitle="Komposisi tagihan saat ini">
+            <div class="p-5">
+                <canvas id="chartTagihan"></canvas>
+            </div>
+        </x-card>
+    </div>
+
     <div class="grid grid-cols-1 gap-4 xl:grid-cols-3 md:gap-6">
         <x-card class="xl:col-span-2">
             <x-slot:title>Transaksi Terbaru</x-slot:title>
@@ -87,4 +124,40 @@
         </x-card>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof Chart === 'undefined') return;
+
+    new Chart(document.getElementById('chartPendapatan'), {
+        type: 'bar',
+        data: {
+            labels: @json($bulanLabels),
+            datasets: [{
+                label: 'Pendapatan (Rp)',
+                data: @json($bulanData),
+                backgroundColor: 'rgba(0, 102, 255, 0.7)',
+                borderRadius: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { callback: v => 'Rp ' + v.toLocaleString('id-ID') } } }
+        }
+    });
+
+    new Chart(document.getElementById('chartTagihan'), {
+        type: 'doughnut',
+        data: {
+            labels: @json($statusTagihanLabels),
+            datasets: [{
+                data: @json(array_values($statusTagihan->toArray())),
+                backgroundColor: ['#f59e0b', '#10b981', '#ef4444', '#64748b', '#0052ff'],
+            }]
+        },
+        options: { responsive: true, cutout: '65%' }
+    });
+});
+</script>
 @endsection

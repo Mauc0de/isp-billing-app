@@ -82,6 +82,59 @@ final class RouterOsClient implements RouterClient
         return count($this->run(new Query((string) config('mikrotik.endpoints.active')))['rows']);
     }
 
+    public function ensureHotspotUser(string $username, string $password, string $profile, bool $disabled = false): void
+    {
+        $endpoint = (string) config('mikrotik.endpoints.hotspot_user', '/ip/hotspot/user');
+
+        $result = $this->run(new Query($endpoint.'/print', ['?name='.$username]));
+
+        if (($result['rows'][0] ?? null) === null) {
+            $this->run(new Query($endpoint.'/add', [
+                '=name='.$username,
+                '=password='.$password,
+                '=profile='.$profile,
+                '=disabled='.($disabled ? 'yes' : 'no'),
+            ]));
+
+            return;
+        }
+
+        $this->run(new Query($endpoint.'/set', [
+            '?name='.$username,
+            '=profile='.$profile,
+            '=disabled='.($disabled ? 'yes' : 'no'),
+        ]));
+    }
+
+    public function ensurePppSecret(string $username, string $password, string $profile, bool $disabled = false): void
+    {
+        $result = $this->run(new Query(
+            (string) config('mikrotik.endpoints.ppp_secret').'/print',
+            ['?name='.$username],
+        ));
+
+        $existing = $result['rows'][0] ?? null;
+
+        if ($existing === null) {
+            $this->run(new Query(
+                (string) config('mikrotik.endpoints.ppp_secret').'/add',
+                ['=name='.$username, '=password='.$password, '=profile='.$profile, '=disabled='.($disabled ? 'yes' : 'no')],
+            ));
+
+            return;
+        }
+
+        $currentProfile = $existing['profile'] ?? '';
+        $currentDisabled = ($existing['disabled'] ?? 'false') === 'true';
+
+        if ($currentProfile !== $profile || $currentDisabled !== $disabled) {
+            $this->run(new Query(
+                (string) config('mikrotik.endpoints.ppp_secret').'/set',
+                ['?name='.$username, '=profile='.$profile, '=disabled='.($disabled ? 'yes' : 'no')],
+            ));
+        }
+    }
+
     /**
      * Aktifkan/nonaktifkan PPP secret. Idempoten: kalau sudah berada di state
      * yang diminta, tidak ada perintah yang dikirim ke router.

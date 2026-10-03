@@ -17,12 +17,16 @@
     $canSaldo = auth()->user()?->can('saldo.view') ?? false;
     $canPayments = auth()->user()?->can('payment_requests.view') ?? false;
     $canUsers = auth()->user()?->can('users.view') ?? false;
+    $canRouters = auth()->user()?->can('routers.view') ?? false;
+    $canExpenses = auth()->user()?->can('expenses.view') ?? false;
 
-    if ($canVouchers || $canSaldo || $canPayments || $canUsers) {
+    if ($canVouchers || $canSaldo || $canPayments || $canUsers || $canRouters || $canExpenses) {
         $groups['Layanan Tambahan'] = array_values(array_filter([
+            $canRouters ? ['route' => 'router.index', 'pattern' => 'router*', 'label' => 'Router', 'icon' => 'M5 12h14M12 5l7 7-7 7'] : null,
             $canVouchers ? ['route' => 'vouchers.index', 'pattern' => 'voucher*', 'label' => 'Voucher', 'icon' => 'M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 000-4V7a2 2 0 012-2z'] : null,
             $canSaldo ? ['route' => 'saldo.index', 'pattern' => 'saldo*', 'label' => 'Saldo', 'icon' => 'M12 8c-2.21 0-4 .895-4 2s1.79 2 4 2 4 .895 4 2-1.79 2-4 2m0-8c1.48 0 2.773.402 3.5 1M12 8V6m0 10c-1.48 0-2.773-.402-3.5-1M12 16v2m9-5a9 9 0 11-18 0 9 9 0 0118 0z'] : null,
             $canPayments ? ['route' => 'payment-requests.index', 'pattern' => 'pembayaran-masuk*', 'label' => 'Pembayaran Masuk', 'icon' => 'M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6m16 0l-8 5-8-5m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5'] : null,
+            $canExpenses ? ['route' => 'pengeluaran.index', 'pattern' => 'pengeluaran*', 'label' => 'Pengeluaran', 'icon' => 'M3 17l6-6 4 4 8-8M21 7h-6m6 0v6'] : null,
             $canUsers ? ['route' => 'users.index', 'pattern' => 'pengguna*', 'label' => 'Pengguna', 'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'] : null,
         ], fn ($item) => $item !== null));
     }
@@ -40,7 +44,7 @@
                 @foreach($items as $item)
                     @php($active = request()->is($item['pattern']))
                     <a href="{{ route($item['route']) }}"
-                       class="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 {{ $active ? 'bg-gradient-to-r from-accent-500 via-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/20 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-brand-600' }}">
+                       class="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 {{ $active ? 'bg-gradient-to-r from-accent-500 via-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/20 font-semibold' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}" />
                         </svg>

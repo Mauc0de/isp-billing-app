@@ -29,6 +29,11 @@ Artisan::command('inspire', function () {
 |
 */
 
+// Buat tagihan bulanan tiap tanggal 1 jam 00:30.
+Schedule::command('isp:generate-invoices')
+    ->monthlyOn(1, '00:30')
+    ->withoutOverlapping();
+
 // Cek jatuh tempo & trigger auto-suspend setiap hari dini hari.
 Schedule::job(new ScanOverdueInvoices)
     ->dailyAt('01:00')
@@ -37,4 +42,9 @@ Schedule::job(new ScanOverdueInvoices)
 // Pantau konektivitas router, untuk layer monitoring Frontend 2.
 Schedule::job(new SyncRouterStatuses)
     ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
+// Backup database tiap hari jam 02:00.
+Schedule::command('isp:backup-db')
+    ->dailyAt('02:00')
     ->withoutOverlapping();

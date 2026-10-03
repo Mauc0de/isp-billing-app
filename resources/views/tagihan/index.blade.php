@@ -17,6 +17,7 @@
                         <th class="p-4 font-bold">Tanggal Terbit</th>
                         <th class="p-4 font-bold">Jatuh Tempo</th>
                         <th class="p-4 font-bold">Status</th>
+                        <th class="p-4 font-bold">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,6 +37,9 @@
                         <td class="p-4 text-slate-500">{{ $t->tanggal_terbit?->format('d/m/Y') ?? '—' }}</td>
                         <td class="p-4 text-slate-500">{{ $t->jatuh_tempo?->format('d/m/Y') ?? '—' }}</td>
                         <td class="p-4"><x-badge :tone="$tone">{{ str_replace('_', ' ', $t->status) }}</x-badge></td>
+                        <td class="p-4">
+                            <a href="{{ route('tagihan.pdf', $t) }}" class="text-xs font-semibold text-brand-600 hover:underline">PDF</a>
+                        </td>
                     </tr>
                     @empty
                     <tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada tagihan</td></tr>

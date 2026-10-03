@@ -18,12 +18,14 @@ class Paket extends Model
         'nama_paket',
         'kecepatan',
         'harga',
+        'billing_cycle',
         'deskripsi',
         'status',
     ];
 
     protected $casts = [
         'harga' => 'integer',
+        'billing_cycle' => \App\Enums\BillingCycle::class,
     ];
 
     public function pelanggan(): HasMany

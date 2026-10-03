@@ -37,6 +37,10 @@ class TenantSettings
 
     public const BANK_HOLDER = 'payment.bank_holder';
 
+    public const TELEGRAM_ENABLED = 'telegram.enabled';
+
+    public const TELEGRAM_CHAT_ID = 'telegram.chat_id';
+
     /**
      * @return array<string, mixed>|null
      */
@@ -80,6 +84,31 @@ class TenantSettings
         }
 
         return WhatsappProvider::tryFrom($raw) ?? WhatsappProvider::Disabled;
+    }
+
+    /**
+     * Notifikasi Telegram aktif untuk tenant ini? Default mengikuti config
+     * (aktif bila TELEGRAM_BOT_TOKEN diisi).
+     */
+    public function telegramEnabled(): bool
+    {
+        $raw = $this->all()[self::TELEGRAM_ENABLED] ?? null;
+
+        if ($raw !== null) {
+            return filter_var($raw, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return (bool) config('telegram.bot_token');
+    }
+
+    /**
+     * Chat ID admin khusus tenant; null berarti pakai default dari config.
+     */
+    public function telegramChatId(): ?string
+    {
+        $value = $this->string(self::TELEGRAM_CHAT_ID);
+
+        return ($value === null || $value === '') ? null : $value;
     }
 
     /**
